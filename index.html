@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>みんなの議論場</title>
+  <title>RONPA</title>
 
   <style>
     body {
@@ -32,12 +32,14 @@
       height: 100px;
       box-sizing: border-box;
       padding: 10px;
+      font-size: 16px;
     }
 
     button {
       margin-top: 10px;
       padding: 10px 20px;
       cursor: pointer;
+      font-size: 16px;
     }
 
     .comment {
@@ -45,6 +47,12 @@
       padding: 12px;
       margin-top: 10px;
       border-radius: 8px;
+      word-break: break-word;
+    }
+
+    #status {
+      margin-top: 10px;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -52,7 +60,7 @@
 <body>
 
 <header>
-  <h1>🔥 みんなの議論場</h1>
+  <h1>🔥 RONPA</h1>
   <p>自由に意見を書いてみよう</p>
 </header>
 
@@ -61,9 +69,15 @@
   <h2>今日の議題</h2>
   <h3>AIは人間の仕事を奪うと思う？</h3>
 
-  <textarea id="comment" placeholder="あなたの意見を書いてください"></textarea>
+  <textarea
+    id="comment"
+    maxlength="500"
+    placeholder="あなたの意見を書いてください"
+  ></textarea>
 
-  <button onclick="postComment()">投稿する</button>
+  <button id="postButton">投稿する</button>
+
+  <div id="status"></div>
 
   <h2>みんなの意見</h2>
 
@@ -71,24 +85,110 @@
 
 </main>
 
-<script>
-function postComment() {
-  const input = document.getElementById("comment");
-  const text = input.value.trim();
+<script type="module">
 
-  if (text === "") {
-    alert("意見を書いてください");
-    return;
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+
+  import {
+    getFirestore,
+    collection,
+    addDoc,
+    onSnapshot,
+    query,
+    orderBy,
+    serverTimestamp
   }
+    from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
-  const comment = document.createElement("div");
-  comment.className = "comment";
-  comment.textContent = text;
+  const firebaseConfig = {
+    apiKey: "AIzaSyDGjwQ_wFFkhJynJIbgzKFpfs0rpcMWk8o",
+    authDomain: "ronpa-7b4ae.firebaseapp.com",
+    projectId: "ronpa-7b4ae",
+    storageBucket: "ronpa-7b4ae.firebasestorage.app",
+    messagingSenderId: "882612778855",
+    appId: "1:882612778855:web:90fe4308ab25ac367761c2",
+    measurementId: "G-VC028K73B3"
+  };
 
-  document.getElementById("comments").prepend(comment);
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-  input.value = "";
-}
+  const input = document.getElementById("comment");
+  const button = document.getElementById("postButton");
+  const comments = document.getElementById("comments");
+  const status = document.getElementById("status");
+
+  button.addEventListener("click", async () => {
+
+    const text = input.value.trim();
+
+    if (text === "") {
+      alert("意見を書いてください");
+      return;
+    }
+
+    if (text.length > 500) {
+      alert("500文字以内で書いてください");
+      return;
+    }
+
+    button.disabled = true;
+    status.textContent = "投稿中...";
+
+    try {
+
+      await addDoc(collection(db, "comments"), {
+        text: text,
+        createdAt: serverTimestamp()
+      });
+
+      input.value = "";
+      status.textContent = "投稿しました！";
+
+    } catch (error) {
+
+      console.error(error);
+      status.textContent = "投稿に失敗しました。";
+
+    } finally {
+
+      button.disabled = false;
+
+    }
+  });
+
+  const commentsQuery = query(
+    collection(db, "comments"),
+    orderBy("createdAt", "desc")
+  );
+
+  onSnapshot(
+    commentsQuery,
+    (snapshot) => {
+
+      comments.innerHTML = "";
+
+      snapshot.forEach((doc) => {
+
+        const data = doc.data();
+
+        const comment = document.createElement("div");
+        comment.className = "comment";
+        comment.textContent = data.text;
+
+        comments.appendChild(comment);
+      });
+
+    },
+    (error) => {
+
+      console.error(error);
+      status.textContent = "コメントの読み込みに失敗しました。";
+
+    }
+  );
+
 </script>
 
 </body>
