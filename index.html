@@ -15,7 +15,7 @@
     header {
       background: #222;
       color: white;
-      padding: 20px;
+      padding: 25px;
       text-align: center;
     }
 
@@ -35,9 +35,30 @@
       font-size: 16px;
     }
 
-    button {
+    .side-buttons {
+      display: flex;
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    .side-button {
+      flex: 1;
+      padding: 14px;
+      cursor: pointer;
+      border: 2px solid #ccc;
+      background: white;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .side-button.selected {
+      border-color: #222;
+      font-weight: bold;
+    }
+
+    #postButton {
       margin-top: 10px;
-      padding: 10px 20px;
+      padding: 12px 20px;
       cursor: pointer;
       font-size: 16px;
     }
@@ -48,6 +69,11 @@
       margin-top: 10px;
       border-radius: 8px;
       word-break: break-word;
+    }
+
+    .side-label {
+      font-weight: bold;
+      margin-bottom: 6px;
     }
 
     #status {
@@ -68,6 +94,16 @@
 
   <h2>今日の議題</h2>
   <h3>AIは人間の仕事を奪うと思う？</h3>
+
+  <div class="side-buttons">
+    <button class="side-button" id="agreeButton">
+      👍 賛成
+    </button>
+
+    <button class="side-button" id="disagreeButton">
+      👎 反対
+    </button>
+  </div>
 
   <textarea
     id="comment"
@@ -115,35 +151,60 @@
   const db = getFirestore(app);
 
   const input = document.getElementById("comment");
-  const button = document.getElementById("postButton");
+  const postButton = document.getElementById("postButton");
   const comments = document.getElementById("comments");
   const status = document.getElementById("status");
 
-  button.addEventListener("click", async () => {
+  const agreeButton = document.getElementById("agreeButton");
+  const disagreeButton = document.getElementById("disagreeButton");
+
+  let selectedSide = "";
+
+  agreeButton.addEventListener("click", () => {
+    selectedSide = "agree";
+
+    agreeButton.classList.add("selected");
+    disagreeButton.classList.remove("selected");
+  });
+
+  disagreeButton.addEventListener("click", () => {
+    selectedSide = "disagree";
+
+    disagreeButton.classList.add("selected");
+    agreeButton.classList.remove("selected");
+  });
+
+  postButton.addEventListener("click", async () => {
 
     const text = input.value.trim();
+
+    if (selectedSide === "") {
+      alert("賛成か反対を選んでください");
+      return;
+    }
 
     if (text === "") {
       alert("意見を書いてください");
       return;
     }
 
-    if (text.length > 500) {
-      alert("500文字以内で書いてください");
-      return;
-    }
-
-    button.disabled = true;
+    postButton.disabled = true;
     status.textContent = "投稿中...";
 
     try {
 
       await addDoc(collection(db, "comments"), {
         text: text,
+        side: selectedSide,
         createdAt: serverTimestamp()
       });
 
       input.value = "";
+      selectedSide = "";
+
+      agreeButton.classList.remove("selected");
+      disagreeButton.classList.remove("selected");
+
       status.textContent = "投稿しました！";
 
     } catch (error) {
@@ -153,7 +214,7 @@
 
     } finally {
 
-      button.disabled = false;
+      postButton.disabled = false;
 
     }
   });
@@ -175,7 +236,23 @@
 
         const comment = document.createElement("div");
         comment.className = "comment";
-        comment.textContent = data.text;
+
+        const label = document.createElement("div");
+        label.className = "side-label";
+
+        if (data.side === "agree") {
+          label.textContent = "👍 賛成";
+        } else if (data.side === "disagree") {
+          label.textContent = "👎 反対";
+        } else {
+          label.textContent = "💬 意見";
+        }
+
+        const text = document.createElement("div");
+        text.textContent = data.text;
+
+        comment.appendChild(label);
+        comment.appendChild(text);
 
         comments.appendChild(comment);
       });
