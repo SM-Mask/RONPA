@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>みんなの議論場</title>
+
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+    }
+
+    header {
+      background: #222;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    main {
+      max-width: 700px;
+      margin: 30px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100px;
+      box-sizing: border-box;
+      padding: 10px;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    .comment {
+      background: #eee;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>🔥 みんなの議論場</h1>
+  <p>自由に意見を書いてみよう</p>
+</header>
+
+<main>
+
+  <h2>今日の議題</h2>
+  <h3>AIは人間の仕事を奪うと思う？</h3>
+
+  <textarea id="comment" placeholder="あなたの意見を書いてください"></textarea>
+
+  <button onclick="postComment()">投稿する</button>
+
+  <h2>みんなの意見</h2>
+
+  <div id="comments"></div>
+
+</main>
+
+<script>
+function postComment() {
+  const input = document.getElementById("comment");
+  const text = input.value.trim();
+
+  if (text === "") {
+    alert("意見を書いてください");
+    return;
+  }
+
+  const comment = document.createElement("div");
+  comment.className = "comment";
+  comment.textContent = text;
+
+  document.getElementById("comments").prepend(comment);
+
+  input.value = "";
+}
+</script>
+
+</body>
+</html>
