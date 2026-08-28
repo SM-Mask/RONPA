@@ -20,7 +20,7 @@
 
 <meta
   name="robots"
-  content="index, follow"
+  content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
 >
 
 <link
@@ -52,6 +52,12 @@
   property="og:url"
   content="https://sm-mask.github.io/RONPA/"
 >
+
+<meta property="og:site_name" content="RONPA">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary">
+<meta id="twitterTitle" name="twitter:title" content="RONPA｜みんなで議論・討論できる意見交換サイト">
+<meta id="twitterDescription" name="twitter:description" content="賛成・反対で投票して、みんなで意見交換できる議論サイト。">
 
 
 <script
@@ -829,6 +835,26 @@ function resetSeo() {
 
   document
   .getElementById(
+    "twitterTitle"
+  )
+  .setAttribute(
+    "content",
+    document.title
+  );
+
+
+  document
+  .getElementById(
+    "twitterDescription"
+  )
+  .setAttribute(
+    "content",
+    description
+  );
+
+
+  document
+  .getElementById(
     "structuredData"
   )
   .textContent =
@@ -919,6 +945,26 @@ function setTopicSeo(
   .setAttribute(
     "content",
     url
+  );
+
+
+  document
+  .getElementById(
+    "twitterTitle"
+  )
+  .setAttribute(
+    "content",
+    title
+  );
+
+
+  document
+  .getElementById(
+    "twitterDescription"
+  )
+  .setAttribute(
+    "content",
+    description
   );
 
 
