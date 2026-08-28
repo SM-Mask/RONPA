@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>RONPA</title>
 
   <style>
@@ -81,6 +82,27 @@
       color: white;
     }
 
+    .sort-buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .sort-button {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 9px;
+      background: white;
+      font-weight: bold;
+    }
+
+    .sort-button.active {
+      background: #222;
+      color: white;
+      border-color: #222;
+    }
+
     .topic-card {
       background: white;
       border-radius: 15px;
@@ -98,6 +120,12 @@
 
     .topic-title:hover {
       text-decoration: underline;
+    }
+
+    .topic-info {
+      font-size: 13px;
+      color: #777;
+      margin-bottom: 12px;
     }
 
     .vote-row {
@@ -143,6 +171,7 @@
       color: #777;
       font-size: 13px;
       margin-top: 12px;
+      cursor: pointer;
     }
 
     .discussion-area {
@@ -208,10 +237,6 @@
       word-break: break-word;
     }
 
-    .rank {
-      margin-right: 6px;
-    }
-
     .empty {
       color: #777;
     }
@@ -231,6 +256,10 @@
       }
 
       .vote-button {
+        font-size: 14px;
+      }
+
+      .sort-button {
         font-size: 14px;
       }
     }
@@ -268,7 +297,25 @@
 
   </div>
 
-  <h2>🔥 人気の議題</h2>
+  <h2>議題一覧</h2>
+
+  <div class="sort-buttons">
+
+    <button
+      id="popularButton"
+      class="sort-button active"
+    >
+      🔥 人気順
+    </button>
+
+    <button
+      id="newButton"
+      class="sort-button"
+    >
+      🆕 新着順
+    </button>
+
+  </div>
 
   <div id="topics">
     読み込み中...
@@ -295,18 +342,35 @@ from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDGjwQ_wFFkhJynJIbgzKFpfs0rpcMWk8o",
-  authDomain: "ronpa-7b4ae.firebaseapp.com",
-  projectId: "ronpa-7b4ae",
-  storageBucket: "ronpa-7b4ae.firebasestorage.app",
-  messagingSenderId: "882612778855",
-  appId: "1:882612778855:web:90fe4308ab25ac367761c2",
-  measurementId: "G-VC028K73B3"
+
+  apiKey:
+  "AIzaSyDGjwQ_wFFkhJynJIbgzKFpfs0rpcMWk8o",
+
+  authDomain:
+  "ronpa-7b4ae.firebaseapp.com",
+
+  projectId:
+  "ronpa-7b4ae",
+
+  storageBucket:
+  "ronpa-7b4ae.firebasestorage.app",
+
+  messagingSenderId:
+  "882612778855",
+
+  appId:
+  "1:882612778855:web:90fe4308ab25ac367761c2",
+
+  measurementId:
+  "G-VC028K73B3"
 };
 
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const app =
+initializeApp(firebaseConfig);
+
+const db =
+getFirestore(app);
 
 
 const topicsElement =
@@ -327,13 +391,72 @@ document.getElementById("saveTopicButton");
 const createMessage =
 document.getElementById("createMessage");
 
+const popularButton =
+document.getElementById("popularButton");
 
-const topicData = new Map();
+const newButton =
+document.getElementById("newButton");
 
-const voteUnsubscribers = new Map();
-const commentUnsubscribers = new Map();
 
-let openedTopicId = null;
+const topicData =
+new Map();
+
+const voteUnsubscribers =
+new Map();
+
+const commentUnsubscribers =
+new Map();
+
+
+let openedTopicId =
+null;
+
+let sortMode =
+"popular";
+
+
+// --------------------
+// 人気順 / 新着順
+// --------------------
+
+popularButton.addEventListener(
+"click",
+() => {
+
+  sortMode =
+  "popular";
+
+  popularButton.classList.add(
+    "active"
+  );
+
+  newButton.classList.remove(
+    "active"
+  );
+
+  renderTopics();
+
+});
+
+
+newButton.addEventListener(
+"click",
+() => {
+
+  sortMode =
+  "new";
+
+  newButton.classList.add(
+    "active"
+  );
+
+  popularButton.classList.remove(
+    "active"
+  );
+
+  renderTopics();
+
+});
 
 
 // --------------------
@@ -353,7 +476,7 @@ createTopicButton.addEventListener(
 
 
 // --------------------
-// 新しい議題
+// 新しい議題を作成
 // --------------------
 
 saveTopicButton.addEventListener(
@@ -363,29 +486,48 @@ async () => {
   const title =
   topicInput.value.trim();
 
+
   if (!title) {
-    alert("議題を入力してください");
+
+    alert(
+      "議題を入力してください"
+    );
+
     return;
+
   }
 
-  saveTopicButton.disabled = true;
+
+  saveTopicButton.disabled =
+  true;
 
   createMessage.textContent =
   "作成中...";
 
+
   try {
 
     await addDoc(
-      collection(db, "topics"),
+      collection(
+        db,
+        "topics"
+      ),
       {
         title,
-        createdAt: serverTimestamp()
+        createdAt:
+        serverTimestamp()
       }
     );
 
-    topicInput.value = "";
-    createArea.style.display = "none";
-    createMessage.textContent = "";
+
+    topicInput.value =
+    "";
+
+    createArea.style.display =
+    "none";
+
+    createMessage.textContent =
+    "";
 
   }
   catch(error) {
@@ -398,7 +540,8 @@ async () => {
   }
   finally {
 
-    saveTopicButton.disabled = false;
+    saveTopicButton.disabled =
+    false;
 
   }
 
@@ -416,12 +559,19 @@ snapshot => {
   const currentIds =
   new Set();
 
-  snapshot.forEach(topicDoc => {
 
-    const id = topicDoc.id;
-    const data = topicDoc.data();
+  snapshot.forEach(
+  topicDoc => {
+
+    const id =
+    topicDoc.id;
+
+    const data =
+    topicDoc.data();
+
 
     currentIds.add(id);
+
 
     if (!topicData.has(id)) {
 
@@ -429,28 +579,46 @@ snapshot => {
         id,
         {
           id,
-          title: data.title,
+          title:
+          data.title,
+
+          createdAt:
+          data.createdAt,
+
           agree: 0,
+
           disagree: 0,
+
           comments: []
         }
       );
 
+
       watchVotes(id);
+
       watchComments(id);
 
     }
     else {
 
-      topicData.get(id).title =
+      const topic =
+      topicData.get(id);
+
+      topic.title =
       data.title;
+
+      topic.createdAt =
+      data.createdAt;
 
     }
 
   });
 
 
-  for (const id of topicData.keys()) {
+  for (
+    const id
+    of topicData.keys()
+  ) {
 
     if (!currentIds.has(id)) {
 
@@ -460,20 +628,30 @@ snapshot => {
 
   }
 
+
   renderTopics();
 
 });
 
 
 // --------------------
-// 投票をリアルタイム監視
+// 投票を監視
 // --------------------
 
-function watchVotes(topicId) {
+function watchVotes(
+  topicId
+) {
 
-  if (voteUnsubscribers.has(topicId)) {
+  if (
+    voteUnsubscribers.has(
+      topicId
+    )
+  ) {
+
     return;
+
   }
+
 
   const unsubscribe =
   onSnapshot(
@@ -486,35 +664,60 @@ function watchVotes(topicId) {
     snapshot => {
 
       let agree = 0;
+
       let disagree = 0;
 
-      snapshot.forEach(voteDoc => {
+
+      snapshot.forEach(
+      voteDoc => {
 
         const vote =
         voteDoc.data();
 
-        if (vote.side === "agree") {
+
+        if (
+          vote.side ===
+          "agree"
+        ) {
+
           agree++;
+
         }
 
-        if (vote.side === "disagree") {
+
+        if (
+          vote.side ===
+          "disagree"
+        ) {
+
           disagree++;
+
         }
 
       });
 
+
       const topic =
-      topicData.get(topicId);
+      topicData.get(
+        topicId
+      );
+
 
       if (!topic) return;
 
-      topic.agree = agree;
-      topic.disagree = disagree;
+
+      topic.agree =
+      agree;
+
+      topic.disagree =
+      disagree;
+
 
       renderTopics();
 
     }
   );
+
 
   voteUnsubscribers.set(
     topicId,
@@ -525,14 +728,23 @@ function watchVotes(topicId) {
 
 
 // --------------------
-// コメントをリアルタイム監視
+// コメントを監視
 // --------------------
 
-function watchComments(topicId) {
+function watchComments(
+  topicId
+) {
 
-  if (commentUnsubscribers.has(topicId)) {
+  if (
+    commentUnsubscribers.has(
+      topicId
+    )
+  ) {
+
     return;
+
   }
+
 
   const commentsQuery =
   query(
@@ -542,40 +754,56 @@ function watchComments(topicId) {
       topicId,
       "comments"
     ),
+
     orderBy(
       "createdAt",
       "desc"
     )
   );
 
+
   const unsubscribe =
   onSnapshot(
     commentsQuery,
     snapshot => {
 
-      const comments = [];
+      const comments =
+      [];
 
-      snapshot.forEach(commentDoc => {
 
-        comments.push({
-          id: commentDoc.id,
-          ...commentDoc.data()
-        });
+      snapshot.forEach(
+      commentDoc => {
+
+        comments.push(
+          {
+            id:
+            commentDoc.id,
+
+            ...commentDoc.data()
+          }
+        );
 
       });
 
+
       const topic =
-      topicData.get(topicId);
+      topicData.get(
+        topicId
+      );
+
 
       if (!topic) return;
 
+
       topic.comments =
       comments;
+
 
       renderTopics();
 
     }
   );
+
 
   commentUnsubscribers.set(
     topicId,
@@ -586,7 +814,7 @@ function watchComments(topicId) {
 
 
 // --------------------
-// 人気順に並べて表示
+// 一覧表示
 // --------------------
 
 function renderTopics() {
@@ -597,29 +825,66 @@ function renderTopics() {
   );
 
 
-  list.sort(
-    (a, b) => {
+  if (
+    sortMode ===
+    "popular"
+  ) {
 
-      const scoreA =
-        a.agree +
-        a.disagree +
-        a.comments.length * 2;
+    list.sort(
+      (a, b) => {
 
-      const scoreB =
-        b.agree +
-        b.disagree +
-        b.comments.length * 2;
+        const scoreA =
+          a.agree +
+          a.disagree +
+          a.comments.length * 3;
 
-      return scoreB - scoreA;
-
-    }
-  );
-
-
-  topicsElement.innerHTML = "";
+        const scoreB =
+          b.agree +
+          b.disagree +
+          b.comments.length * 3;
 
 
-  if (list.length === 0) {
+        return (
+          scoreB -
+          scoreA
+        );
+
+      }
+    );
+
+  }
+  else {
+
+    list.sort(
+      (a, b) => {
+
+        const timeA =
+          a.createdAt?.seconds
+          || 0;
+
+        const timeB =
+          b.createdAt?.seconds
+          || 0;
+
+
+        return (
+          timeB -
+          timeA
+        );
+
+      }
+    );
+
+  }
+
+
+  topicsElement.innerHTML =
+  "";
+
+
+  if (
+    list.length === 0
+  ) {
 
     topicsElement.innerHTML =
     '<p class="empty">まだ議題がありません。</p>';
@@ -633,15 +898,22 @@ function renderTopics() {
   (topic, index) => {
 
     const card =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
     card.className =
     "topic-card";
 
 
+    // ----------------
     // タイトル
+    // ----------------
+
     const title =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
     title.className =
     "topic-title";
@@ -649,20 +921,27 @@ function renderTopics() {
     title.textContent =
     `${index + 1}. ${topic.title}`;
 
+
     title.addEventListener(
       "click",
       () => {
 
-        if (openedTopicId === topic.id) {
+        if (
+          openedTopicId ===
+          topic.id
+        ) {
 
-          openedTopicId = null;
+          openedTopicId =
+          null;
 
-        } else {
+        }
+        else {
 
           openedTopicId =
           topic.id;
 
         }
+
 
         renderTopics();
 
@@ -670,16 +949,59 @@ function renderTopics() {
     );
 
 
-    // 投票ボタン
+    // ----------------
+    // 人気度
+    // ----------------
+
+    const score =
+      topic.agree +
+      topic.disagree +
+      topic.comments.length * 3;
+
+
+    const info =
+    document.createElement(
+      "div"
+    );
+
+    info.className =
+    "topic-info";
+
+
+    if (
+      sortMode ===
+      "popular"
+    ) {
+
+      info.textContent =
+      `🔥 人気度 ${score}`;
+
+    }
+    else {
+
+      info.textContent =
+      "🆕 新着";
+
+    }
+
+
+    // ----------------
+    // 投票
+    // ----------------
+
     const voteRow =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
     voteRow.className =
     "vote-row";
 
 
     const agreeButton =
-    document.createElement("button");
+    document.createElement(
+      "button"
+    );
 
     agreeButton.className =
     "vote-button";
@@ -704,7 +1026,9 @@ function renderTopics() {
 
 
     const disagreeButton =
-    document.createElement("button");
+    document.createElement(
+      "button"
+    );
 
     disagreeButton.className =
     "vote-button";
@@ -737,9 +1061,14 @@ function renderTopics() {
     );
 
 
+    // ----------------
     // 最新コメント
+    // ----------------
+
     const latestTitle =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
     latestTitle.className =
     "latest-title";
@@ -749,14 +1078,22 @@ function renderTopics() {
 
 
     const latestArea =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
 
     const latestComments =
-    topic.comments.slice(0, 3);
+    topic.comments.slice(
+      0,
+      3
+    );
 
 
-    if (latestComments.length === 0) {
+    if (
+      latestComments.length ===
+      0
+    ) {
 
       latestArea.innerHTML =
       '<div class="empty">まだコメントはありません。</div>';
@@ -768,66 +1105,126 @@ function renderTopics() {
       comment => {
 
         const box =
-        document.createElement("div");
+        document.createElement(
+          "div"
+        );
 
         box.className =
         "latest-comment";
 
 
         const side =
-        document.createElement("div");
+        document.createElement(
+          "div"
+        );
 
         side.className =
         "comment-side";
 
+
         side.textContent =
-        comment.side === "agree"
+          comment.side ===
+          "agree"
           ? "👍 賛成"
           : "👎 反対";
 
 
         const text =
-        document.createElement("div");
+        document.createElement(
+          "div"
+        );
 
         text.textContent =
         comment.text;
 
 
-        box.appendChild(side);
-        box.appendChild(text);
+        box.appendChild(
+          side
+        );
 
-        latestArea.appendChild(box);
+        box.appendChild(
+          text
+        );
+
+
+        latestArea.appendChild(
+          box
+        );
 
       });
 
     }
 
 
+    // ----------------
+    // 展開案内
+    // ----------------
+
     const hint =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
     hint.className =
     "open-hint";
 
+
     hint.textContent =
-    openedTopicId === topic.id
+      openedTopicId ===
+      topic.id
       ? "▲ 議題を閉じる"
       : "▼ 議題を押すとコメントできます";
 
 
-    // 展開部分
+    hint.addEventListener(
+      "click",
+      () => {
+
+        if (
+          openedTopicId ===
+          topic.id
+        ) {
+
+          openedTopicId =
+          null;
+
+        }
+        else {
+
+          openedTopicId =
+          topic.id;
+
+        }
+
+
+        renderTopics();
+
+      }
+    );
+
+
+    // ----------------
+    // コメント欄
+    // ----------------
+
     const discussion =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
     discussion.className =
     "discussion-area";
 
 
-    if (openedTopicId === topic.id) {
+    if (
+      openedTopicId ===
+      topic.id
+    ) {
 
       discussion.classList.add(
         "open"
       );
+
 
       buildDiscussionArea(
         discussion,
@@ -837,14 +1234,38 @@ function renderTopics() {
     }
 
 
-    card.appendChild(title);
-    card.appendChild(voteRow);
-    card.appendChild(latestTitle);
-    card.appendChild(latestArea);
-    card.appendChild(hint);
-    card.appendChild(discussion);
+    card.appendChild(
+      title
+    );
 
-    topicsElement.appendChild(card);
+    card.appendChild(
+      info
+    );
+
+    card.appendChild(
+      voteRow
+    );
+
+    card.appendChild(
+      latestTitle
+    );
+
+    card.appendChild(
+      latestArea
+    );
+
+    card.appendChild(
+      hint
+    );
+
+    card.appendChild(
+      discussion
+    );
+
+
+    topicsElement.appendChild(
+      card
+    );
 
   });
 
@@ -871,6 +1292,7 @@ async function vote(
       ),
       {
         side,
+
         createdAt:
         serverTimestamp()
       }
@@ -891,7 +1313,7 @@ async function vote(
 
 
 // --------------------
-// コメント入力エリア
+// コメント欄
 // --------------------
 
 function buildDiscussionArea(
@@ -900,24 +1322,31 @@ function buildDiscussionArea(
 ) {
 
   const heading =
-  document.createElement("h3");
+  document.createElement(
+    "h3"
+  );
 
   heading.textContent =
   "意見を書く";
 
 
-  let selectedSide = "";
+  let selectedSide =
+  "";
 
 
   const sideButtons =
-  document.createElement("div");
+  document.createElement(
+    "div"
+  );
 
   sideButtons.className =
   "side-buttons";
 
 
   const agree =
-  document.createElement("button");
+  document.createElement(
+    "button"
+  );
 
   agree.className =
   "side-button";
@@ -927,7 +1356,9 @@ function buildDiscussionArea(
 
 
   const disagree =
-  document.createElement("button");
+  document.createElement(
+    "button"
+  );
 
   disagree.className =
   "side-button";
@@ -943,9 +1374,11 @@ function buildDiscussionArea(
       selectedSide =
       "agree";
 
+
       agree.classList.add(
         "selected"
       );
+
 
       disagree.classList.remove(
         "selected"
@@ -962,9 +1395,11 @@ function buildDiscussionArea(
       selectedSide =
       "disagree";
 
+
       disagree.classList.add(
         "selected"
       );
+
 
       agree.classList.remove(
         "selected"
@@ -974,21 +1409,31 @@ function buildDiscussionArea(
   );
 
 
-  sideButtons.appendChild(agree);
-  sideButtons.appendChild(disagree);
+  sideButtons.appendChild(
+    agree
+  );
+
+  sideButtons.appendChild(
+    disagree
+  );
 
 
   const textarea =
-  document.createElement("textarea");
+  document.createElement(
+    "textarea"
+  );
 
-  textarea.maxLength = 500;
+  textarea.maxLength =
+  500;
 
   textarea.placeholder =
   "あなたの意見を書いてください";
 
 
   const post =
-  document.createElement("button");
+  document.createElement(
+    "button"
+  );
 
   post.className =
   "post-button";
@@ -998,7 +1443,9 @@ function buildDiscussionArea(
 
 
   const message =
-  document.createElement("div");
+  document.createElement(
+    "div"
+  );
 
   message.className =
   "message";
@@ -1012,7 +1459,9 @@ function buildDiscussionArea(
       textarea.value.trim();
 
 
-      if (!selectedSide) {
+      if (
+        !selectedSide
+      ) {
 
         alert(
           "賛成か反対を選んでください"
@@ -1034,7 +1483,8 @@ function buildDiscussionArea(
       }
 
 
-      post.disabled = true;
+      post.disabled =
+      true;
 
       message.textContent =
       "投稿中...";
@@ -1051,6 +1501,7 @@ function buildDiscussionArea(
           ),
           {
             text,
+
             side:
             selectedSide,
 
@@ -1060,9 +1511,12 @@ function buildDiscussionArea(
         );
 
 
-        textarea.value = "";
+        textarea.value =
+        "";
 
-        selectedSide = "";
+        selectedSide =
+        "";
+
 
         agree.classList.remove(
           "selected"
@@ -1071,6 +1525,7 @@ function buildDiscussionArea(
         disagree.classList.remove(
           "selected"
         );
+
 
         message.textContent =
         "投稿しました！";
@@ -1086,7 +1541,8 @@ function buildDiscussionArea(
       }
       finally {
 
-        post.disabled = false;
+        post.disabled =
+        false;
 
       }
 
@@ -1095,7 +1551,9 @@ function buildDiscussionArea(
 
 
   const allTitle =
-  document.createElement("div");
+  document.createElement(
+    "div"
+  );
 
   allTitle.className =
   "all-comments-title";
@@ -1105,10 +1563,15 @@ function buildDiscussionArea(
 
 
   const allComments =
-  document.createElement("div");
+  document.createElement(
+    "div"
+  );
 
 
-  if (topic.comments.length === 0) {
+  if (
+    topic.comments.length ===
+    0
+  ) {
 
     allComments.innerHTML =
     '<p class="empty">まだ意見はありません。</p>';
@@ -1120,48 +1583,84 @@ function buildDiscussionArea(
     comment => {
 
       const box =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
       box.className =
       "all-comment";
 
 
       const side =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
       side.className =
       "comment-side";
 
+
       side.textContent =
-      comment.side === "agree"
+        comment.side ===
+        "agree"
         ? "👍 賛成"
         : "👎 反対";
 
 
       const text =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
       text.textContent =
       comment.text;
 
 
-      box.appendChild(side);
-      box.appendChild(text);
+      box.appendChild(
+        side
+      );
 
-      allComments.appendChild(box);
+      box.appendChild(
+        text
+      );
+
+
+      allComments.appendChild(
+        box
+      );
 
     });
 
   }
 
 
-  area.appendChild(heading);
-  area.appendChild(sideButtons);
-  area.appendChild(textarea);
-  area.appendChild(post);
-  area.appendChild(message);
-  area.appendChild(allTitle);
-  area.appendChild(allComments);
+  area.appendChild(
+    heading
+  );
+
+  area.appendChild(
+    sideButtons
+  );
+
+  area.appendChild(
+    textarea
+  );
+
+  area.appendChild(
+    post
+  );
+
+  area.appendChild(
+    message
+  );
+
+  area.appendChild(
+    allTitle
+  );
+
+  area.appendChild(
+    allComments
+  );
 
 }
 
