@@ -589,6 +589,26 @@ footer {
 
 }
 
+
+.search-area {
+  margin: 16px 0;
+}
+
+.search-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px 15px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+.search-count {
+  margin: 8px 2px 0;
+  color: #777;
+  font-size: 13px;
+}
+
 </style>
 
 </head>
@@ -697,6 +717,23 @@ AI、社会、学校、仕事、生活など、
 </div>
 
 
+<div
+  id="searchArea"
+  class="search-area"
+>
+  <input
+    id="topicSearch"
+    class="search-input"
+    type="search"
+    placeholder="🔍 議題を検索（AI、学校、ゲーム...）"
+    aria-label="議題を検索"
+  >
+  <div
+    id="searchCount"
+    class="search-count"
+  ></div>
+</div>
+
 <div id="topics">
 読み込み中...
 </div>
@@ -776,6 +813,32 @@ const BASE_URL =
 
 const topicsElement =
 document.getElementById("topics");
+
+const searchArea =
+document.getElementById("searchArea");
+
+const topicSearch =
+document.getElementById("topicSearch");
+
+const searchCount =
+document.getElementById("searchCount");
+
+let searchText =
+"";
+
+topicSearch.addEventListener(
+  "input",
+  () => {
+
+    searchText =
+    topicSearch.value
+    .trim()
+    .toLowerCase();
+
+    renderTopics();
+
+  }
+);
 
 const intro =
 document.getElementById("intro");
@@ -1678,6 +1741,9 @@ function renderTopics() {
     listControls.style.display =
     "none";
 
+    searchArea.style.display =
+    "none";
+
 
     createTopicButton.style.display =
     "none";
@@ -1719,6 +1785,9 @@ function renderTopics() {
 
 
     listControls.style.display =
+    "block";
+
+    searchArea.style.display =
     "block";
 
 
@@ -1804,6 +1873,56 @@ function renderTopics() {
   }
 
 
+  if (
+    !routeTopicId &&
+    searchText
+  ) {
+
+    list =
+    list.filter(
+      topic => {
+
+        const title =
+        (topic.title || "")
+        .toLowerCase();
+
+        const comments =
+        (topic.comments || [])
+        .map(
+          comment =>
+          comment.text || ""
+        )
+        .join(" ")
+        .toLowerCase();
+
+        return (
+          title.includes(searchText) ||
+          comments.includes(searchText)
+        );
+
+      }
+    );
+
+  }
+
+
+  if (
+    !routeTopicId &&
+    searchText
+  ) {
+
+    searchCount.textContent =
+    `${list.length}件見つかりました`;
+
+  }
+  else {
+
+    searchCount.textContent =
+    "";
+
+  }
+
+
   topicsElement.textContent =
   "";
 
@@ -1824,6 +1943,10 @@ function renderTopics() {
 
 
     empty.textContent =
+    searchText
+    ?
+    "該当する議題が見つかりません。"
+    :
     "まだ議題がありません。";
 
 
