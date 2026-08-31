@@ -416,6 +416,66 @@ textarea {
 }
 
 
+.share-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  width: min(92%, 520px);
+  background: white;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+  z-index: 9999;
+}
+
+
+.share-toast-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+
+.share-toast-text {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+
+.share-toast-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+
+.share-toast-buttons button {
+  flex: 1;
+  padding: 11px 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: white;
+  font-weight: bold;
+}
+
+
+.share-toast-buttons .share-now {
+  background: #111;
+  color: white;
+  border-color: #111;
+}
+
+
+.share-toast-close {
+  margin-top: 9px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #777;
+  font-size: 13px;
+}
+
+
 .empty {
   color: #777;
 }
@@ -2215,6 +2275,243 @@ function renderTopics() {
 
 
 
+function showSharePrompt(
+  topicId,
+  actionText
+) {
+
+  const oldToast =
+  document.getElementById(
+    "shareToast"
+  );
+
+
+  if (oldToast) {
+    oldToast.remove();
+  }
+
+
+  const topic =
+  topicData.get(
+    topicId
+  );
+
+
+  if (!topic) {
+    return;
+  }
+
+
+  const topicUrl =
+  `${BASE_URL}?topic=${encodeURIComponent(topicId)}`;
+
+
+  const shareText =
+  `「${topic.title}」\nあなたは賛成？反対？\nRONPAで投票してみて👇\n#RONPA`;
+
+
+  const toast =
+  document.createElement(
+    "div"
+  );
+
+
+  toast.id =
+  "shareToast";
+
+
+  toast.className =
+  "share-toast";
+
+
+  const title =
+  document.createElement(
+    "div"
+  );
+
+
+  title.className =
+  "share-toast-title";
+
+
+  title.textContent =
+  `${actionText}！みんなにも聞いてみる？`;
+
+
+  const text =
+  document.createElement(
+    "div"
+  );
+
+
+  text.className =
+  "share-toast-text";
+
+
+  text.textContent =
+  "共有すると、この議題に新しい意見が集まりやすくなります。";
+
+
+  const buttons =
+  document.createElement(
+    "div"
+  );
+
+
+  buttons.className =
+  "share-toast-buttons";
+
+
+  const xButton =
+  document.createElement(
+    "button"
+  );
+
+
+  xButton.className =
+  "share-now";
+
+
+  xButton.textContent =
+  "𝕏 Xで共有";
+
+
+  xButton.addEventListener(
+    "click",
+    () => {
+
+      const xUrl =
+      "https://twitter.com/intent/tweet?text=" +
+      encodeURIComponent(
+        shareText
+      ) +
+      "&url=" +
+      encodeURIComponent(
+        topicUrl
+      );
+
+
+      window.open(
+        xUrl,
+        "_blank",
+        "noopener,noreferrer"
+      );
+
+    }
+  );
+
+
+  const copyButton =
+  document.createElement(
+    "button"
+  );
+
+
+  copyButton.textContent =
+  "🔗 URLコピー";
+
+
+  copyButton.addEventListener(
+    "click",
+    async () => {
+
+      try {
+
+        await navigator.clipboard.writeText(
+          topicUrl
+        );
+
+
+        copyButton.textContent =
+        "✅ コピー済み";
+
+      }
+      catch(error) {
+
+        alert(
+          topicUrl
+        );
+
+      }
+
+    }
+  );
+
+
+  const closeButton =
+  document.createElement(
+    "button"
+  );
+
+
+  closeButton.className =
+  "share-toast-close";
+
+
+  closeButton.textContent =
+  "今はしない";
+
+
+  closeButton.addEventListener(
+    "click",
+    () => {
+
+      toast.remove();
+
+    }
+  );
+
+
+  buttons.appendChild(
+    xButton
+  );
+
+
+  buttons.appendChild(
+    copyButton
+  );
+
+
+  toast.appendChild(
+    title
+  );
+
+
+  toast.appendChild(
+    text
+  );
+
+
+  toast.appendChild(
+    buttons
+  );
+
+
+  toast.appendChild(
+    closeButton
+  );
+
+
+  document.body.appendChild(
+    toast
+  );
+
+
+  setTimeout(
+    () => {
+
+      if (toast.isConnected) {
+        toast.remove();
+      }
+
+    },
+    12000
+  );
+
+}
+
+
+
 async function vote(
   topicId,
   side
@@ -2245,6 +2542,12 @@ async function vote(
 
       }
 
+    );
+
+
+    showSharePrompt(
+      topicId,
+      "投票しました"
     );
 
   }
@@ -2504,6 +2807,12 @@ function buildDiscussionArea(
 
         message.textContent =
         "投稿しました！";
+
+
+        showSharePrompt(
+          topic.id,
+          "意見を投稿しました"
+        );
 
       }
       catch(error) {
