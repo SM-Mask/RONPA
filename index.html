@@ -424,6 +424,34 @@ textarea {
 }
 
 
+.related-area {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid #eee;
+}
+
+.related-title {
+  margin: 0 0 10px;
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.related-topic {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 9px;
+  background: white;
+  text-align: left;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.related-topic:hover {
+  background: #f7f7f7;
+}
+
 .share-area {
   margin-top: 20px;
   padding-top: 15px;
@@ -2467,6 +2495,115 @@ function renderTopics() {
       card.appendChild(
         shareArea
       );
+
+
+      const relatedTopics =
+      Array.from(
+        topicData.values()
+      )
+      .filter(
+        item =>
+        item.id !==
+        topic.id
+      )
+      .sort(
+        (a, b) => {
+
+          const scoreA =
+          a.agree +
+          a.disagree +
+          a.comments.length * 3;
+
+          const scoreB =
+          b.agree +
+          b.disagree +
+          b.comments.length * 3;
+
+          return scoreB - scoreA;
+
+        }
+      )
+      .slice(
+        0,
+        3
+      );
+
+
+      if (
+        relatedTopics.length >
+        0
+      ) {
+
+        const relatedArea =
+        document.createElement(
+          "div"
+        );
+
+
+        relatedArea.className =
+        "related-area";
+
+
+        const relatedTitle =
+        document.createElement(
+          "p"
+        );
+
+
+        relatedTitle.className =
+        "related-title";
+
+
+        relatedTitle.textContent =
+        "こんな議論もあります";
+
+
+        relatedArea.appendChild(
+          relatedTitle
+        );
+
+
+        relatedTopics.forEach(
+        related => {
+
+          const relatedButton =
+          document.createElement(
+            "button"
+          );
+
+
+          relatedButton.className =
+          "related-topic";
+
+
+          relatedButton.textContent =
+          `💬 ${related.title}`;
+
+
+          relatedButton.addEventListener(
+            "click",
+            () => {
+
+              openTopic(
+                related.id
+              );
+
+            }
+          );
+
+
+          relatedArea.appendChild(
+            relatedButton
+          );
+
+        });
+
+
+        card.appendChild(
+          relatedArea
+        );
+
+      }
 
     }
     else {
