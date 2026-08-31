@@ -664,6 +664,55 @@ AI、社会、学校、仕事、生活など、
 </button>
 
 
+<div
+  id="bulkImportArea"
+  style="
+    display:none;
+    background:white;
+    padding:18px;
+    border-radius:12px;
+    margin-bottom:25px;
+  "
+>
+  <strong>
+    管理用：議題30件を一括追加
+  </strong>
+
+  <p
+    style="
+      color:#666;
+      font-size:14px;
+      line-height:1.6;
+    "
+  >
+    1回だけ押してください。
+  </p>
+
+  <button
+    id="bulkAddTopicsButton"
+    style="
+      width:100%;
+      padding:14px;
+      border:none;
+      border-radius:9px;
+      background:#222;
+      color:white;
+      font-weight:bold;
+    "
+  >
+    30件を一括追加する
+  </button>
+
+  <p
+    id="bulkImportMessage"
+    style="
+      margin-bottom:0;
+      font-size:14px;
+    "
+  ></p>
+</div>
+
+
 <div id="createArea">
 
 <h2>
@@ -805,6 +854,165 @@ initializeApp(firebaseConfig);
 
 const db =
 getFirestore(app);
+
+
+const BULK_TOPICS = [
+  "学校の宿題は廃止するべきだ",
+  "AIを使った宿題を認めるべきだ",
+  "学校でのスマホ使用を認めるべきだ",
+  "学校の制服は廃止するべきだ",
+  "体育祭への参加は自由にするべきだ",
+  "学校のテスト順位を公開するべきだ",
+  "部活動は学校から地域へ完全移行するべきだ",
+  "大学の学費は無償化するべきだ",
+  "採用では学歴を重視するべきではない",
+  "日本は週休3日制を普及させるべきだ",
+  "日本は完全キャッシュレス社会を目指すべきだ",
+  "レジ袋は無料に戻すべきだ",
+  "SNSは実名制にするべきだ",
+  "SNSの「いいね数」は非表示にするべきだ",
+  "YouTubeは低評価数を再表示するべきだ",
+  "AI生成画像には「AI生成」と表示するべきだ",
+  "AI生成動画には「AI生成」と表示するべきだ",
+  "学校では生成AIの利用を認めるべきだ",
+  "AIを使ったレポート作成を認めるべきだ",
+  "AIによる接客をもっと普及させるべきだ",
+  "ゲームのガチャには金額上限を設けるべきだ",
+  "eスポーツを正式なスポーツとして扱うべきだ",
+  "ネット上の匿名コメントは禁止するべきだ",
+  "SNSには年齢確認を義務付けるべきだ",
+  "炎上した投稿でも運営は簡単に削除するべきではない",
+  "選挙の投票をインターネットでもできるようにするべきだ",
+  "日本は自動運転車を積極的に普及させるべきだ",
+  "コンビニの24時間営業はやめるべきだ",
+  "飲食店の完全禁煙を義務付けるべきだ",
+  "ネット上の誹謗中傷への罰則を強化するべきだ"
+];
+
+
+const bulkMode =
+new URLSearchParams(
+  window.location.search
+).get("bulk") === "1";
+
+
+window.addEventListener(
+  "DOMContentLoaded",
+  () => {
+
+    const bulkImportArea =
+    document.getElementById(
+      "bulkImportArea"
+    );
+
+    const bulkAddTopicsButton =
+    document.getElementById(
+      "bulkAddTopicsButton"
+    );
+
+    const bulkImportMessage =
+    document.getElementById(
+      "bulkImportMessage"
+    );
+
+
+    if (
+      !bulkMode ||
+      !bulkImportArea
+    ) {
+      return;
+    }
+
+
+    bulkImportArea.style.display =
+    "block";
+
+
+    bulkAddTopicsButton.addEventListener(
+      "click",
+      async () => {
+
+        const confirmed =
+        confirm(
+          "30件を追加します。1回だけ実行してください。"
+        );
+
+
+        if (!confirmed) {
+          return;
+        }
+
+
+        bulkAddTopicsButton.disabled =
+        true;
+
+        bulkAddTopicsButton.textContent =
+        "追加中...";
+
+        bulkImportMessage.textContent =
+        "Firestoreへ追加しています。";
+
+
+        let added =
+        0;
+
+
+        try {
+
+          for (
+            const title
+            of BULK_TOPICS
+          ) {
+
+            await addDoc(
+              collection(
+                db,
+                "topics"
+              ),
+              {
+                title,
+                createdAt:
+                serverTimestamp()
+              }
+            );
+
+            added += 1;
+
+            bulkImportMessage.textContent =
+            `${added} / ${BULK_TOPICS.length} 件追加`;
+
+          }
+
+
+          bulkAddTopicsButton.textContent =
+          "追加完了";
+
+          bulkImportMessage.textContent =
+          "30件すべて追加できました。";
+
+        }
+        catch(error) {
+
+          console.error(
+            error
+          );
+
+          bulkAddTopicsButton.disabled =
+          false;
+
+          bulkAddTopicsButton.textContent =
+          "残りを追加する";
+
+          bulkImportMessage.textContent =
+          `${added}件まで追加できました。エラーが出たので、連打せず確認してください。`;
+
+        }
+
+      }
+    );
+
+  }
+);
 
 
 const BASE_URL =
