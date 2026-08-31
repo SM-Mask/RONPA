@@ -251,6 +251,51 @@ button {
 }
 
 
+.quick-poll {
+  margin: 8px 0 18px;
+  padding: 18px;
+  border-radius: 13px;
+  background: #f7f7f7;
+  text-align: center;
+}
+
+.quick-poll-question {
+  margin: 0 0 12px;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.quick-poll-result {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-bottom: 12px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.quick-poll-bar {
+  display: flex;
+  height: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #ddd;
+}
+
+.quick-poll-agree {
+  background: #222;
+}
+
+.quick-poll-disagree {
+  background: #aaa;
+}
+
+.quick-poll-note {
+  margin-top: 9px;
+  color: #777;
+  font-size: 13px;
+}
+
 .vote-row {
   display: flex;
   gap: 10px;
@@ -2047,6 +2092,200 @@ function renderTopics() {
     );
 
 
+    if (
+      routeTopicId
+    ) {
+
+      const totalVotes =
+      topic.agree +
+      topic.disagree;
+
+
+      const agreePercent =
+      totalVotes > 0
+      ?
+      Math.round(
+        topic.agree /
+        totalVotes *
+        100
+      )
+      :
+      50;
+
+
+      const disagreePercent =
+      totalVotes > 0
+      ?
+      100 - agreePercent
+      :
+      50;
+
+
+      const quickPoll =
+      document.createElement(
+        "div"
+      );
+
+
+      quickPoll.className =
+      "quick-poll";
+
+
+      const quickQuestion =
+      document.createElement(
+        "p"
+      );
+
+
+      quickQuestion.className =
+      "quick-poll-question";
+
+
+      quickQuestion.textContent =
+      "あなたはどっち？";
+
+
+      const quickResult =
+      document.createElement(
+        "div"
+      );
+
+
+      quickResult.className =
+      "quick-poll-result";
+
+
+      const agreeResult =
+      document.createElement(
+        "span"
+      );
+
+
+      agreeResult.textContent =
+      totalVotes > 0
+      ?
+      `👍 賛成 ${agreePercent}%`
+      :
+      "👍 賛成";
+
+
+      const disagreeResult =
+      document.createElement(
+        "span"
+      );
+
+
+      disagreeResult.textContent =
+      totalVotes > 0
+      ?
+      `👎 反対 ${disagreePercent}%`
+      :
+      "👎 反対";
+
+
+      const quickBar =
+      document.createElement(
+        "div"
+      );
+
+
+      quickBar.className =
+      "quick-poll-bar";
+
+
+      const agreeBar =
+      document.createElement(
+        "div"
+      );
+
+
+      agreeBar.className =
+      "quick-poll-agree";
+
+
+      agreeBar.style.width =
+      `${agreePercent}%`;
+
+
+      const disagreeBar =
+      document.createElement(
+        "div"
+      );
+
+
+      disagreeBar.className =
+      "quick-poll-disagree";
+
+
+      disagreeBar.style.width =
+      `${disagreePercent}%`;
+
+
+      const quickNote =
+      document.createElement(
+        "div"
+      );
+
+
+      quickNote.className =
+      "quick-poll-note";
+
+
+      quickNote.textContent =
+      totalVotes > 0
+      ?
+      `${totalVotes}票の投票結果`
+      :
+      "まだ投票はありません";
+
+
+      quickResult.appendChild(
+        agreeResult
+      );
+
+
+      quickResult.appendChild(
+        disagreeResult
+      );
+
+
+      quickBar.appendChild(
+        agreeBar
+      );
+
+
+      quickBar.appendChild(
+        disagreeBar
+      );
+
+
+      quickPoll.appendChild(
+        quickQuestion
+      );
+
+
+      quickPoll.appendChild(
+        quickResult
+      );
+
+
+      quickPoll.appendChild(
+        quickBar
+      );
+
+
+      quickPoll.appendChild(
+        quickNote
+      );
+
+
+      card.appendChild(
+        quickPoll
+      );
+
+    }
+
+
     card.appendChild(
       voteRow
     );
@@ -2545,11 +2784,6 @@ async function vote(
     );
 
 
-    showSharePrompt(
-      topicId,
-      "投票しました"
-    );
-
   }
   catch(error) {
 
@@ -2808,11 +3042,6 @@ function buildDiscussionArea(
         message.textContent =
         "投稿しました！";
 
-
-        showSharePrompt(
-          topic.id,
-          "意見を投稿しました"
-        );
 
       }
       catch(error) {
