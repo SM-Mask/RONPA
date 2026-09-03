@@ -342,6 +342,36 @@ button {
   margin-bottom: 4px;
 }
 
+.comment-rating {
+  display: flex;
+  gap: 8px;
+  margin-top: 9px;
+  flex-wrap: wrap;
+}
+
+.comment-rating-button {
+  border: 1px solid #d3d3d3;
+  background: white;
+  border-radius: 999px;
+  padding: 7px 10px;
+  font-size: 12px;
+}
+
+.comment-rating-button:hover:not(:disabled) {
+  background: #f0f0f0;
+}
+
+.comment-rating-button.selected {
+  border-color: #222;
+  font-weight: bold;
+  background: #ececec;
+}
+
+.comment-rating-button:disabled {
+  cursor: default;
+  opacity: 0.75;
+}
+
 
 .open-hint {
   color: #777;
@@ -568,6 +598,34 @@ footer {
 }
 
 
+
+.admin-entry {
+  margin-top: 12px;
+  background: transparent;
+  border: 1px solid #666;
+  color: #ddd;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.admin-entry.active {
+  border-color: #ff6b6b;
+  color: #ffb3b3;
+}
+
+.admin-delete-button {
+  margin-top: 8px;
+  margin-left: 8px;
+  border: 1px solid #e05a5a;
+  background: #fff;
+  color: #b42318;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 @media
 (max-width: 600px) {
 
@@ -589,26 +647,6 @@ footer {
 
 }
 
-
-.search-area {
-  margin: 16px 0;
-}
-
-.search-input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 13px 15px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  font-size: 16px;
-}
-
-.search-count {
-  margin: 8px 2px 0;
-  color: #777;
-  font-size: 13px;
-}
-
 </style>
 
 </head>
@@ -626,6 +664,8 @@ footer {
 <p>
 みんなの意見で議論する場所
 </p>
+
+<button id="adminButton" class="admin-entry" type="button">管理者</button>
 
 </header>
 
@@ -717,23 +757,6 @@ AI、社会、学校、仕事、生活など、
 </div>
 
 
-<div
-  id="searchArea"
-  class="search-area"
->
-  <input
-    id="topicSearch"
-    class="search-input"
-    type="search"
-    placeholder="🔍 議題を検索（AI、学校、ゲーム...）"
-    aria-label="議題を検索"
-  >
-  <div
-    id="searchCount"
-    class="search-count"
-  ></div>
-</div>
-
 <div id="topics">
 読み込み中...
 </div>
@@ -765,7 +788,11 @@ import {
   onSnapshot,
   query,
   orderBy,
-  serverTimestamp
+  serverTimestamp,
+  doc,
+  updateDoc,
+  increment,
+  deleteDoc
 
 }
 from
@@ -811,34 +838,18 @@ const BASE_URL =
 "https://sm-mask.github.io/RONPA/";
 
 
+const ADMIN_PASSWORD =
+"1245";
+
+
+let isAdmin =
+sessionStorage.getItem(
+  "ronpa_admin_mode"
+) === "1";
+
+
 const topicsElement =
 document.getElementById("topics");
-
-const searchArea =
-document.getElementById("searchArea");
-
-const topicSearch =
-document.getElementById("topicSearch");
-
-const searchCount =
-document.getElementById("searchCount");
-
-let searchText =
-"";
-
-topicSearch.addEventListener(
-  "input",
-  () => {
-
-    searchText =
-    topicSearch.value
-    .trim()
-    .toLowerCase();
-
-    renderTopics();
-
-  }
-);
 
 const intro =
 document.getElementById("intro");
@@ -872,6 +883,9 @@ document.getElementById("newButton");
 
 const logo =
 document.getElementById("logo");
+
+const adminButton =
+document.getElementById("adminButton");
 
 
 const topicData =
@@ -942,6 +956,11 @@ function openTopic(
   topicId;
 
 
+  recordTopicView(
+    topicId
+  );
+
+
   const url =
   `${BASE_URL}?topic=${encodeURIComponent(topicId)}`;
 
@@ -988,6 +1007,60 @@ backButton.addEventListener(
 "click",
 openHome
 );
+
+
+function refreshAdminButton() {
+
+  adminButton.textContent =
+  isAdmin ? "管理者モード中" : "管理者";
+
+  adminButton.classList.toggle(
+    "active",
+    isAdmin
+  );
+
+}
+
+
+adminButton.addEventListener(
+"click",
+() => {
+
+  if (isAdmin) {
+
+    isAdmin = false;
+    sessionStorage.removeItem(
+      "ronpa_admin_mode"
+    );
+    refreshAdminButton();
+    renderTopics();
+    return;
+
+  }
+
+  const entered =
+  prompt("管理者のパスワードを入力してください");
+
+  if (entered === ADMIN_PASSWORD) {
+
+    isAdmin = true;
+    sessionStorage.setItem(
+      "ronpa_admin_mode",
+      "1"
+    );
+    refreshAdminButton();
+    renderTopics();
+
+  } else if (entered !== null) {
+
+    alert("パスワードが違います。");
+
+  }
+
+});
+
+
+refreshAdminButton();
 
 
 
@@ -1348,6 +1421,9 @@ async () => {
 
         title,
 
+        views:
+        0,
+
         createdAt:
         serverTimestamp()
 
@@ -1441,6 +1517,9 @@ snapshot => {
           createdAt:
           data.createdAt,
 
+          views:
+          data.views || 0,
+
           agree:
           0,
 
@@ -1480,6 +1559,10 @@ snapshot => {
       topic.createdAt =
       data.createdAt;
 
+
+      topic.views =
+      data.views || 0;
+
     }
 
   });
@@ -1505,10 +1588,53 @@ snapshot => {
   }
 
 
+  if (routeTopicId) {
+
+    recordTopicView(
+      routeTopicId
+    );
+
+  }
+
+
   renderTopics();
 
 });
 
+
+
+async function recordTopicView(
+  topicId
+) {
+
+  try {
+
+    await updateDoc(
+
+      doc(
+        db,
+        "topics",
+        topicId
+      ),
+
+      {
+        views:
+        increment(1)
+      }
+
+    );
+
+  }
+  catch(error) {
+
+    console.error(
+      "閲覧数の更新に失敗しました",
+      error
+    );
+
+  }
+
+}
 
 
 function watchVotes(
@@ -1741,9 +1867,6 @@ function renderTopics() {
     listControls.style.display =
     "none";
 
-    searchArea.style.display =
-    "none";
-
 
     createTopicButton.style.display =
     "none";
@@ -1785,9 +1908,6 @@ function renderTopics() {
 
 
     listControls.style.display =
-    "block";
-
-    searchArea.style.display =
     "block";
 
 
@@ -1873,56 +1993,6 @@ function renderTopics() {
   }
 
 
-  if (
-    !routeTopicId &&
-    searchText
-  ) {
-
-    list =
-    list.filter(
-      topic => {
-
-        const title =
-        (topic.title || "")
-        .toLowerCase();
-
-        const comments =
-        (topic.comments || [])
-        .map(
-          comment =>
-          comment.text || ""
-        )
-        .join(" ")
-        .toLowerCase();
-
-        return (
-          title.includes(searchText) ||
-          comments.includes(searchText)
-        );
-
-      }
-    );
-
-  }
-
-
-  if (
-    !routeTopicId &&
-    searchText
-  ) {
-
-    searchCount.textContent =
-    `${list.length}件見つかりました`;
-
-  }
-  else {
-
-    searchCount.textContent =
-    "";
-
-  }
-
-
   topicsElement.textContent =
   "";
 
@@ -1943,10 +2013,6 @@ function renderTopics() {
 
 
     empty.textContent =
-    searchText
-    ?
-    "該当する議題が見つかりません。"
-    :
     "まだ議題がありません。";
 
 
@@ -2037,7 +2103,7 @@ function renderTopics() {
 
 
     info.textContent =
-    `🔥 人気度 ${score}`;
+    `🔥 人気度 ${score}　👀 閲覧 ${topic.views || 0}`;
 
 
     const voteRow =
@@ -2222,6 +2288,104 @@ function renderTopics() {
         box.appendChild(
           text
         );
+
+
+        if (routeTopicId) {
+
+          const rating =
+          document.createElement(
+            "div"
+          );
+
+
+          rating.className =
+          "comment-rating";
+
+
+          const ratingKey =
+          `ronpa_comment_bad_${topic.id}_${comment.id}`;
+
+
+          const alreadyRated =
+          localStorage.getItem(
+            ratingKey
+          );
+
+
+          const badButton =
+          document.createElement(
+            "button"
+          );
+
+
+          badButton.className =
+          "comment-rating-button";
+
+
+          badButton.textContent =
+          `👎 BAD ${comment.notHelpful || 0}`;
+
+
+          if (alreadyRated) {
+
+            badButton.disabled =
+            true;
+
+
+            badButton.classList.add(
+              "selected"
+            );
+
+          }
+
+
+          badButton.addEventListener(
+            "click",
+            () => rateCommentBad(
+              topic.id,
+              comment.id
+            )
+          );
+
+
+          rating.appendChild(
+            badButton
+          );
+
+
+          box.appendChild(
+            rating
+          );
+
+
+          if (isAdmin) {
+
+            const deleteButton =
+            document.createElement(
+              "button"
+            );
+
+            deleteButton.className =
+            "admin-delete-button";
+
+            deleteButton.textContent =
+            "削除";
+
+            deleteButton.addEventListener(
+              "click",
+              () => deleteCommentAsAdmin(
+                topic.id,
+                comment.id
+              )
+            );
+
+            box.appendChild(
+              deleteButton
+            );
+
+          }
+
+        }
 
 
         latestArea.appendChild(
@@ -3062,6 +3226,113 @@ async function vote(
 
 
 
+async function deleteCommentAsAdmin(
+  topicId,
+  commentId
+) {
+
+  if (!isAdmin) {
+    alert("管理者モードではありません。");
+    return;
+  }
+
+  const ok =
+  confirm("このコメントを削除しますか？\n削除すると元に戻せません。");
+
+  if (!ok) {
+    return;
+  }
+
+  try {
+
+    await deleteDoc(
+      doc(
+        db,
+        "topics",
+        topicId,
+        "comments",
+        commentId
+      )
+    );
+
+  }
+  catch(error) {
+
+    console.error(error);
+    alert("コメントを削除できませんでした。");
+
+  }
+
+}
+
+
+async function rateCommentBad(
+  topicId,
+  commentId
+) {
+
+  const key =
+  `ronpa_comment_bad_${topicId}_${commentId}`;
+
+
+  if (
+    localStorage.getItem(
+      key
+    )
+  ) {
+
+    return;
+
+  }
+
+
+  localStorage.setItem(
+    key,
+    "1"
+  );
+
+
+  try {
+
+    await updateDoc(
+
+      doc(
+        db,
+        "topics",
+        topicId,
+        "comments",
+        commentId
+      ),
+
+      {
+        notHelpful:
+        increment(1)
+      }
+
+    );
+
+  }
+  catch(error) {
+
+    console.error(
+      error
+    );
+
+
+    localStorage.removeItem(
+      key
+    );
+
+
+    alert(
+      "BAD評価できませんでした。"
+    );
+
+  }
+
+}
+
+
 function buildDiscussionArea(
   area,
   topic
@@ -3272,6 +3543,12 @@ function buildDiscussionArea(
 
             side:
             selectedSide,
+
+            helpful:
+            0,
+
+            notHelpful:
+            0,
 
             createdAt:
             serverTimestamp()
