@@ -191,11 +191,23 @@ button {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: #fff0f1;
-  color: #d71920;
-  border: 2px solid #f6d7d9;
-  font-size: 32px;
-  font-weight: 800;
+  background: #fff7f7;
+  border: 2px solid #f2d5d7;
+}
+
+.feature-icon svg {
+  width: 36px;
+  height: 36px;
+  fill: none;
+  stroke: #222;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.feature-icon .icon-accent {
+  stroke: #d9040b;
+  stroke-width: 2.2;
 }
 
 .feature-item h3 {
@@ -880,19 +892,38 @@ footer {
 
 <div class="feature-grid">
   <div class="feature-item">
-    <div class="feature-icon" aria-hidden="true">✓</div>
+    <div class="feature-icon" aria-hidden="true">
+      <svg viewBox="0 0 48 48">
+        <path d="M9 19h30v21H9z"></path>
+        <path d="M15 19l3-7h12l3 7"></path>
+        <path d="M18 7h12v17H18z" fill="#fff"></path>
+        <path class="icon-accent" d="M21 15l3 3 6-7"></path>
+      </svg>
+    </div>
     <h3>投票する</h3>
     <p>賛成・反対で気軽に投票</p>
   </div>
 
   <div class="feature-item">
-    <div class="feature-icon" aria-hidden="true">💬</div>
+    <div class="feature-icon" aria-hidden="true">
+      <svg viewBox="0 0 48 48">
+        <path d="M8 10h32v24H21l-9 7v-7H8z"></path>
+        <circle cx="18" cy="22" r="1.3" fill="#222" stroke="none"></circle>
+        <circle cx="24" cy="22" r="1.3" fill="#222" stroke="none"></circle>
+        <circle cx="30" cy="22" r="1.3" fill="#222" stroke="none"></circle>
+      </svg>
+    </div>
     <h3>意見を書く</h3>
     <p>自分の考えを自由に投稿</p>
   </div>
 
   <div class="feature-item">
-    <div class="feature-icon" aria-hidden="true">◉</div>
+    <div class="feature-icon" aria-hidden="true">
+      <svg viewBox="0 0 48 48">
+        <path d="M6 9h25v18H18l-7 6v-6H6z"></path>
+        <path d="M20 21h22v16H31l-6 5v-5h-5z" fill="#fff"></path>
+      </svg>
+    </div>
     <h3>議論が深まる</h3>
     <p>多様な意見に出会える</p>
   </div>
