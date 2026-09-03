@@ -800,10 +800,7 @@ import {
   query,
   orderBy,
   serverTimestamp,
-  doc,
-  updateDoc,
-  increment,
-  deleteDoc
+  doc
 
 }
 from
@@ -1073,6 +1070,11 @@ adminButton.addEventListener(
 
 refreshAdminButton();
 
+
+// URLから議題を直接開いた場合（再読み込みを含む）も1閲覧として記録。
+if (routeTopicId) {
+  recordTopicView(routeTopicId);
+}
 
 
 function resetSeo() {
@@ -1531,6 +1533,12 @@ snapshot => {
           views:
           data.views || 0,
 
+          baseViews:
+          data.views || 0,
+
+          viewEvents:
+          0,
+
           agree:
           0,
 
@@ -1571,8 +1579,12 @@ snapshot => {
       data.createdAt;
 
 
-      topic.views =
+      topic.baseViews =
       data.views || 0;
+
+
+      topic.views =
+      topic.baseViews + (topic.viewEvents || 0);
 
     }
 
@@ -1599,15 +1611,6 @@ snapshot => {
   }
 
 
-  if (routeTopicId) {
-
-    recordTopicView(
-      routeTopicId
-    );
-
-  }
-
-
   renderTopics();
 
 });
@@ -1620,26 +1623,26 @@ async function recordTopicView(
 
   try {
 
-    await updateDoc(
-
-      doc(
+    // Firestoreの既存文書を更新せず、動作実績のある votes に閲覧イベントを追加する。
+    await addDoc(
+      collection(
         db,
         "topics",
-        topicId
+        topicId,
+        "votes"
       ),
-
       {
-        views:
-        increment(1)
+        side: "agree",
+        eventType: "view",
+        createdAt: serverTimestamp()
       }
-
     );
 
   }
   catch(error) {
 
     console.error(
-      "閲覧数の更新に失敗しました",
+      "閲覧数の記録に失敗しました",
       error
     );
 
@@ -1693,12 +1696,33 @@ function watchVotes(
       {};
 
 
+      let viewEvents =
+      0;
+
+
       snapshot.forEach(
       voteDoc => {
 
 
         const vote =
         voteDoc.data();
+
+
+        if (vote.eventType === "view") {
+
+          viewEvents++;
+          return;
+
+        }
+
+
+        if (vote.eventType === "bad" && vote.commentId) {
+
+          badCounts[vote.commentId] =
+          (badCounts[vote.commentId] || 0) + 1;
+          return;
+
+        }
 
 
         if (
@@ -1717,18 +1741,6 @@ function watchVotes(
         ) {
 
           disagree++;
-
-        }
-
-
-        if (
-          vote.side ===
-          "bad" &&
-          vote.commentId
-        ) {
-
-          badCounts[vote.commentId] =
-          (badCounts[vote.commentId] || 0) + 1;
 
         }
 
@@ -1758,6 +1770,14 @@ function watchVotes(
 
       topic.badCounts =
       badCounts;
+
+
+      topic.viewEvents =
+      viewEvents;
+
+
+      topic.views =
+      (topic.baseViews || 0) + viewEvents;
 
 
       renderTopics();
@@ -1822,24 +1842,34 @@ function watchComments(
     snapshot => {
 
 
-      const comments =
+      const allEntries =
       [];
 
 
       snapshot.forEach(
       commentDoc => {
 
-
-        comments.push({
-
-          id:
-          commentDoc.id,
-
+        allEntries.push({
+          id: commentDoc.id,
           ...commentDoc.data()
-
         });
 
       });
+
+
+      const removedIds =
+      new Set(
+        allEntries
+          .filter(entry => entry.eventType === "remove" && entry.targetCommentId)
+          .map(entry => entry.targetCommentId)
+      );
+
+
+      const comments =
+      allEntries.filter(entry =>
+        entry.eventType !== "remove" &&
+        !removedIds.has(entry.id)
+      );
 
 
       const topic =
@@ -2377,7 +2407,7 @@ function renderTopics() {
             "admin-delete-button";
 
             deleteButton.textContent =
-            "削除";
+            "排除";
 
             deleteButton.addEventListener(
               "click",
@@ -3249,7 +3279,7 @@ async function deleteCommentAsAdmin(
   }
 
   const ok =
-  confirm("このコメントを削除しますか？\n削除すると元に戻せません。");
+  confirm("このコメントを排除しますか？\nサイト上から非表示になります。");
 
   if (!ok) {
     return;
@@ -3257,21 +3287,28 @@ async function deleteCommentAsAdmin(
 
   try {
 
-    await deleteDoc(
-      doc(
+    // delete権限に依存せず、通常コメントと同じ追加権限で非表示マーカーを保存。
+    await addDoc(
+      collection(
         db,
         "topics",
         topicId,
-        "comments",
-        commentId
-      )
+        "comments"
+      ),
+      {
+        side: "agree",
+        text: "[管理者により非表示]",
+        eventType: "remove",
+        targetCommentId: commentId,
+        createdAt: serverTimestamp()
+      }
     );
 
   }
   catch(error) {
 
     console.error(error);
-    alert("コメントを削除できませんでした。");
+    alert("コメントを排除できませんでした。");
 
   }
 
@@ -3295,7 +3332,8 @@ async function rateCommentBad(
       ),
 
       {
-        side: "bad",
+        side: "disagree",
+        eventType: "bad",
         commentId,
         createdAt: serverTimestamp()
       }
