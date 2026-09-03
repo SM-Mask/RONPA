@@ -374,10 +374,21 @@ button {
 
 
 .open-hint {
-  color: #777;
-  font-size: 13px;
-  margin-top: 12px;
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid #ccc;
+  border-radius: 9px;
+  background: white;
+  color: #222;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
   cursor: pointer;
+}
+
+.open-hint:hover {
+  background: #f3f3f3;
 }
 
 
@@ -2897,8 +2908,12 @@ function renderTopics() {
 
       const hint =
       document.createElement(
-        "div"
+        "button"
       );
+
+
+      hint.type =
+      "button";
 
 
       hint.className =
@@ -2906,7 +2921,7 @@ function renderTopics() {
 
 
       hint.textContent =
-      "▼ 議題を押して詳しく見る";
+      "議題を詳しく見る →";
 
 
       hint.addEventListener(
@@ -3036,7 +3051,7 @@ function showSharePrompt(
 
 
   xButton.textContent =
-  "𝕏 Xで共有";
+  "Xで共有";
 
 
   xButton.addEventListener(
