@@ -1440,7 +1440,7 @@ function formatVisitTime(
     !timestamp ||
     typeof timestamp.toDate !== "function"
   ) {
-    return "記録中...";
+    return "たった今";
   }
 
   return timestamp
@@ -1482,24 +1482,17 @@ function startVisitorLog() {
   adminVisitorSummary.textContent =
   "読み込み中...";
 
-  const visitQuery =
-  query(
-    collection(
-      db,
-      "topics",
-      "__site_analytics__",
-      "votes"
-    ),
-    orderBy(
-      "createdAt",
-      "desc"
-    ),
-    limit(50)
+  const visitCollection =
+  collection(
+    db,
+    "topics",
+    "__site_analytics__",
+    "votes"
   );
 
   visitorLogUnsubscribe =
   onSnapshot(
-    visitQuery,
+    visitCollection,
     snapshot => {
 
       const visits =
@@ -1524,6 +1517,30 @@ function startVisitorLog() {
 
         }
       );
+
+      visits.sort(
+        (a, b) => {
+
+          const aMillis =
+          a.createdAt &&
+          typeof a.createdAt.toMillis === "function"
+            ? a.createdAt.toMillis()
+            : 0;
+
+          const bMillis =
+          b.createdAt &&
+          typeof b.createdAt.toMillis === "function"
+            ? b.createdAt.toMillis()
+            : 0;
+
+          return bMillis - aMillis;
+
+        }
+      );
+
+      if (visits.length > 50) {
+        visits.length = 50;
+      }
 
       const uniqueVisitors =
       new Set(
