@@ -637,6 +637,62 @@ footer {
   font-weight: 700;
 }
 
+
+.admin-visitor-panel {
+  display: none;
+  background: #fff;
+  border: 2px solid #222;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.admin-visitor-panel.open {
+  display: block;
+}
+
+.admin-visitor-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.admin-visitor-note {
+  font-size: 12px;
+  color: #777;
+  margin-bottom: 12px;
+}
+
+.admin-visitor-summary {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.admin-visitor-list {
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.admin-visitor-item {
+  padding: 10px 0;
+  border-top: 1px solid #eee;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.admin-visitor-item:first-child {
+  border-top: none;
+}
+
+.admin-visitor-id {
+  font-weight: 700;
+}
+
+.admin-visitor-meta {
+  color: #666;
+}
+
 @media
 (max-width: 600px) {
 
@@ -687,6 +743,14 @@ footer {
 <button id="backButton">
 ← 議題一覧に戻る
 </button>
+
+
+<section id="adminVisitorPanel" class="admin-visitor-panel">
+  <div class="admin-visitor-title">管理者用・訪問ログ</div>
+  <div class="admin-visitor-note">一般ユーザーには表示されません。匿名ID・日時・端末・ブラウザ・閲覧ページのみ記録します。</div>
+  <div id="adminVisitorSummary" class="admin-visitor-summary">読み込み中...</div>
+  <div id="adminVisitorList" class="admin-visitor-list"></div>
+</section>
 
 
 <section
@@ -799,6 +863,7 @@ import {
   onSnapshot,
   query,
   orderBy,
+  limit,
   serverTimestamp,
   doc
 
@@ -894,6 +959,19 @@ document.getElementById("logo");
 
 const adminButton =
 document.getElementById("adminButton");
+
+
+const adminVisitorPanel =
+document.getElementById("adminVisitorPanel");
+
+const adminVisitorSummary =
+document.getElementById("adminVisitorSummary");
+
+const adminVisitorList =
+document.getElementById("adminVisitorList");
+
+let visitorLogUnsubscribe =
+null;
 
 
 const topicData =
@@ -1027,6 +1105,11 @@ function refreshAdminButton() {
     isAdmin
   );
 
+  adminVisitorPanel.classList.toggle(
+    "open",
+    isAdmin
+  );
+
 }
 
 
@@ -1041,6 +1124,7 @@ adminButton.addEventListener(
       "ronpa_admin_mode"
     );
     refreshAdminButton();
+    stopVisitorLog();
     renderTopics();
     return;
 
@@ -1057,6 +1141,7 @@ adminButton.addEventListener(
       "1"
     );
     refreshAdminButton();
+    startVisitorLog();
     renderTopics();
 
   } else if (entered !== null) {
@@ -1070,10 +1155,339 @@ adminButton.addEventListener(
 
 refreshAdminButton();
 
+// サイトに入った時点で匿名の訪問ログを1件記録。
+recordSiteVisit();
+
+if (isAdmin) {
+  startVisitorLog();
+}
+
 
 // URLから議題を直接開いた場合（再読み込みを含む）も1閲覧として記録。
 if (routeTopicId) {
   recordTopicView(routeTopicId);
+}
+
+
+
+function getOrCreateVisitorId() {
+
+  let id =
+  localStorage.getItem(
+    "ronpa_visitor_id"
+  );
+
+  if (!id) {
+
+    if (
+      window.crypto &&
+      typeof window.crypto.randomUUID === "function"
+    ) {
+
+      id =
+      window.crypto
+      .randomUUID()
+      .replaceAll("-", "")
+      .slice(0, 10)
+      .toUpperCase();
+
+    } else {
+
+      id =
+      Math.random()
+      .toString(36)
+      .slice(2, 12)
+      .toUpperCase();
+
+    }
+
+    localStorage.setItem(
+      "ronpa_visitor_id",
+      id
+    );
+
+  }
+
+  return id;
+
+}
+
+
+function getDeviceLabel() {
+
+  const ua =
+  navigator.userAgent || "";
+
+  if (/iPad|Tablet/i.test(ua)) {
+    return "タブレット";
+  }
+
+  if (/Mobi|Android|iPhone/i.test(ua)) {
+    return "スマホ";
+  }
+
+  return "PC";
+
+}
+
+
+function getBrowserLabel() {
+
+  const ua =
+  navigator.userAgent || "";
+
+  if (/Edg\//.test(ua)) {
+    return "Edge";
+  }
+
+  if (/Chrome\//.test(ua) && !/Edg\//.test(ua)) {
+    return "Chrome";
+  }
+
+  if (/Safari\//.test(ua) && !/Chrome\//.test(ua)) {
+    return "Safari";
+  }
+
+  if (/Firefox\//.test(ua)) {
+    return "Firefox";
+  }
+
+  return "その他";
+
+}
+
+
+async function recordSiteVisit() {
+
+  try {
+
+    await addDoc(
+      collection(
+        db,
+        "topics",
+        "__site_analytics__",
+        "votes"
+      ),
+      {
+        eventType: "siteVisit",
+        visitorId: getOrCreateVisitorId(),
+        device: getDeviceLabel(),
+        browser: getBrowserLabel(),
+        page: routeTopicId
+          ? `議題: ${routeTopicId}`
+          : "トップページ",
+        createdAt: serverTimestamp()
+      }
+    );
+
+  }
+  catch(error) {
+
+    console.error(
+      "訪問ログの記録に失敗しました",
+      error
+    );
+
+  }
+
+}
+
+
+function formatVisitTime(
+  timestamp
+) {
+
+  if (
+    !timestamp ||
+    typeof timestamp.toDate !== "function"
+  ) {
+    return "記録中...";
+  }
+
+  return timestamp
+  .toDate()
+  .toLocaleString(
+    "ja-JP"
+  );
+
+}
+
+
+function stopVisitorLog() {
+
+  if (visitorLogUnsubscribe) {
+
+    visitorLogUnsubscribe();
+    visitorLogUnsubscribe =
+    null;
+
+  }
+
+  adminVisitorList.innerHTML =
+  "";
+
+  adminVisitorSummary.textContent =
+  "";
+
+}
+
+
+function startVisitorLog() {
+
+  stopVisitorLog();
+
+  if (!isAdmin) {
+    return;
+  }
+
+  adminVisitorSummary.textContent =
+  "読み込み中...";
+
+  const visitQuery =
+  query(
+    collection(
+      db,
+      "topics",
+      "__site_analytics__",
+      "votes"
+    ),
+    orderBy(
+      "createdAt",
+      "desc"
+    ),
+    limit(50)
+  );
+
+  visitorLogUnsubscribe =
+  onSnapshot(
+    visitQuery,
+    snapshot => {
+
+      const visits =
+      [];
+
+      snapshot.forEach(
+        docSnap => {
+
+          const data =
+          docSnap.data();
+
+          if (
+            data.eventType ===
+            "siteVisit"
+          ) {
+
+            visits.push(
+              data
+            );
+
+          }
+
+        }
+      );
+
+      const uniqueVisitors =
+      new Set(
+        visits
+        .map(
+          visit =>
+          visit.visitorId
+        )
+        .filter(Boolean)
+      );
+
+      adminVisitorSummary.textContent =
+      `最新 ${visits.length} 件 / 匿名訪問者 ${uniqueVisitors.size} 人`;
+
+      adminVisitorList.innerHTML =
+      "";
+
+      if (
+        visits.length ===
+        0
+      ) {
+
+        const empty =
+        document.createElement(
+          "div"
+        );
+
+        empty.className =
+        "empty";
+
+        empty.textContent =
+        "まだ訪問記録はありません。";
+
+        adminVisitorList.appendChild(
+          empty
+        );
+
+        return;
+
+      }
+
+      visits.forEach(
+        visit => {
+
+          const item =
+          document.createElement(
+            "div"
+          );
+
+          item.className =
+          "admin-visitor-item";
+
+          const id =
+          document.createElement(
+            "div"
+          );
+
+          id.className =
+          "admin-visitor-id";
+
+          id.textContent =
+          `匿名ID: ${visit.visitorId || "不明"}`;
+
+          const meta =
+          document.createElement(
+            "div"
+          );
+
+          meta.className =
+          "admin-visitor-meta";
+
+          meta.textContent =
+          `${formatVisitTime(visit.createdAt)} / ${visit.device || "不明"} / ${visit.browser || "不明"} / ${visit.page || "不明"}`;
+
+          item.appendChild(
+            id
+          );
+
+          item.appendChild(
+            meta
+          );
+
+          adminVisitorList.appendChild(
+            item
+          );
+
+        }
+      );
+
+    },
+    error => {
+
+      console.error(
+        "訪問ログの読み込みに失敗しました",
+        error
+      );
+
+      adminVisitorSummary.textContent =
+      "訪問ログを読み込めませんでした。";
+
+    }
+  );
+
 }
 
 
@@ -2164,7 +2578,9 @@ function renderTopics() {
 
 
     info.textContent =
-    `🔥 人気度 ${score}　👀 閲覧 ${topic.views || 0}`;
+    isAdmin
+      ? `🔥 人気度 ${score}　👀 閲覧 ${topic.views || 0}`
+      : `🔥 人気度 ${score}`;
 
 
     const voteRow =
