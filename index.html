@@ -9,9 +9,7 @@
   name="viewport"
   content="width=device-width, initial-scale=1.0"
 >
-<link rel="icon" type="image/png" href="favicon.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-  
+
 <title>RONPA｜みんなで議論・討論できる意見交換サイト</title>
 
 <meta
@@ -22,7 +20,7 @@
 
 <meta
   name="robots"
-  content="index, follow"
+  content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
 >
 
 <link
@@ -54,6 +52,12 @@
   property="og:url"
   content="https://sm-mask.github.io/RONPA/"
 >
+
+<meta property="og:site_name" content="RONPA">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary">
+<meta id="twitterTitle" name="twitter:title" content="RONPA｜みんなで議論・討論できる意見交換サイト">
+<meta id="twitterDescription" name="twitter:description" content="賛成・反対で投票して、みんなで意見交換できる議論サイト。">
 
 
 <script
@@ -90,28 +94,54 @@ body {
 
 
 header {
-  background: #222;
+  position: relative;
+  background: #050505;
   color: white;
-  text-align: center;
-  padding: 38px 15px;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 34px 20px;
+  overflow: hidden;
+}
+
+.hero-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  width: min(900px, 100%);
+}
+
+.hero-logo {
+  width: 118px;
+  height: 118px;
+  object-fit: cover;
+  border-radius: 26px;
+  flex: 0 0 auto;
 }
 
 header h1 {
   margin: 0;
-  font-size: 40px;
+  font-size: clamp(68px, 10vw, 116px);
+  line-height: .9;
+  letter-spacing: -4px;
+  font-weight: 900;
+  font-style: italic;
+  color: #fff;
   cursor: pointer;
 }
 
-header p {
-  margin: 12px 0 0;
-  color: #ddd;
+.admin-entry {
+  position: absolute;
+  right: 18px;
+  top: 16px;
 }
-
 
 main {
   max-width: 900px;
-  margin: 30px auto;
-  padding: 20px;
+  margin: 0 auto 30px;
+  padding: 0 20px 20px;
 }
 
 
@@ -122,20 +152,80 @@ button {
 
 
 .intro {
-  background: white;
-  border-radius: 14px;
-  padding: 20px;
-  margin-bottom: 22px;
-  line-height: 1.8;
+  background: #fff;
+  margin: 0 -20px 24px;
+  padding: 38px 36px 34px;
+  line-height: 1.7;
+  border-radius: 0 0 18px 18px;
 }
 
 .intro h2 {
-  margin-top: 0;
+  margin: 0;
+  padding-left: 16px;
+  border-left: 5px solid #e31b23;
+  font-size: 30px;
+  line-height: 1.25;
 }
 
-.intro p {
-  margin-bottom: 0;
-  color: #555;
+.intro > p {
+  margin: 20px 0 0;
+  color: #222;
+  font-size: 17px;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 28px;
+}
+
+.feature-item {
+  text-align: center;
+}
+
+.feature-icon {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #fff0f1;
+  color: #d71920;
+  border: 2px solid #f6d7d9;
+  font-size: 32px;
+  font-weight: 800;
+}
+
+.feature-item h3 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.feature-item p {
+  margin: 7px 0 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.hero-cta {
+  display: block;
+  width: min(430px, 100%);
+  margin: 28px auto 0;
+  padding: 15px 20px;
+  border-radius: 999px;
+  background: #d9040b;
+  color: #fff;
+  text-align: center;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 800;
+  box-shadow: 0 7px 18px rgba(217,4,11,.18);
+}
+
+.hero-cta:hover {
+  background: #bb0006;
 }
 
 
@@ -247,6 +337,51 @@ button {
 }
 
 
+.quick-poll {
+  margin: 8px 0 18px;
+  padding: 18px;
+  border-radius: 13px;
+  background: #f7f7f7;
+  text-align: center;
+}
+
+.quick-poll-question {
+  margin: 0 0 12px;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.quick-poll-result {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-bottom: 12px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.quick-poll-bar {
+  display: flex;
+  height: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #ddd;
+}
+
+.quick-poll-agree {
+  background: #222;
+}
+
+.quick-poll-disagree {
+  background: #aaa;
+}
+
+.quick-poll-note {
+  margin-top: 9px;
+  color: #777;
+  font-size: 13px;
+}
+
 .vote-row {
   display: flex;
   gap: 10px;
@@ -293,12 +428,53 @@ button {
   margin-bottom: 4px;
 }
 
+.comment-rating {
+  display: flex;
+  gap: 8px;
+  margin-top: 9px;
+  flex-wrap: wrap;
+}
+
+.comment-rating-button {
+  border: 1px solid #d3d3d3;
+  background: white;
+  border-radius: 999px;
+  padding: 7px 10px;
+  font-size: 12px;
+}
+
+.comment-rating-button:hover:not(:disabled) {
+  background: #f0f0f0;
+}
+
+.comment-rating-button.selected {
+  border-color: #222;
+  font-weight: bold;
+  background: #ececec;
+}
+
+.comment-rating-button:disabled {
+  cursor: default;
+  opacity: 0.75;
+}
+
 
 .open-hint {
-  color: #777;
-  font-size: 13px;
-  margin-top: 12px;
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid #ccc;
+  border-radius: 9px;
+  background: white;
+  color: #222;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
   cursor: pointer;
+}
+
+.open-hint:hover {
+  background: #f3f3f3;
 }
 
 
@@ -375,18 +551,128 @@ textarea {
 }
 
 
+.related-area {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid #eee;
+}
+
+.related-title {
+  margin: 0 0 10px;
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.related-topic {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 9px;
+  background: white;
+  text-align: left;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.related-topic:hover {
+  background: #f7f7f7;
+}
+
 .share-area {
   margin-top: 20px;
   padding-top: 15px;
   border-top: 1px solid #eee;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+
+.share-title {
+  width: 100%;
+  margin: 0 0 2px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #555;
 }
 
 
 .share-button {
-  padding: 10px 15px;
+  flex: 1;
+  min-width: 180px;
+  padding: 12px 15px;
   border: 1px solid #ccc;
   background: white;
   border-radius: 8px;
+  font-weight: bold;
+}
+
+
+.x-share-button {
+  background: #111;
+  color: white;
+  border-color: #111;
+}
+
+
+.share-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  width: min(92%, 520px);
+  background: white;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+  z-index: 9999;
+}
+
+
+.share-toast-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+
+.share-toast-text {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+
+.share-toast-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+
+.share-toast-buttons button {
+  flex: 1;
+  padding: 11px 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: white;
+  font-weight: bold;
+}
+
+
+.share-toast-buttons .share-now {
+  background: #111;
+  color: white;
+  border-color: #111;
+}
+
+
+.share-toast-close {
+  margin-top: 9px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #777;
+  font-size: 13px;
 }
 
 
@@ -409,6 +695,90 @@ footer {
 }
 
 
+
+.admin-entry {
+  margin-top: 12px;
+  background: transparent;
+  border: 1px solid #666;
+  color: #ddd;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.admin-entry.active {
+  border-color: #ff6b6b;
+  color: #ffb3b3;
+}
+
+.admin-delete-button {
+  margin-top: 8px;
+  margin-left: 8px;
+  border: 1px solid #e05a5a;
+  background: #fff;
+  color: #b42318;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+
+.admin-visitor-panel {
+  display: none;
+  background: #fff;
+  border: 2px solid #222;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.admin-visitor-panel.open {
+  display: block;
+}
+
+.admin-visitor-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.admin-visitor-note {
+  font-size: 12px;
+  color: #777;
+  margin-bottom: 12px;
+}
+
+.admin-visitor-summary {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.admin-visitor-list {
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.admin-visitor-item {
+  padding: 10px 0;
+  border-top: 1px solid #eee;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.admin-visitor-item:first-child {
+  border-top: none;
+}
+
+.admin-visitor-id {
+  font-weight: 700;
+}
+
+.admin-visitor-meta {
+  color: #666;
+}
+
 @media
 (max-width: 600px) {
 
@@ -416,8 +786,41 @@ footer {
     padding: 12px;
   }
 
+  header {
+    min-height: 210px;
+    padding: 26px 14px;
+  }
+
+  .hero-brand {
+    gap: 14px;
+  }
+
+  .hero-logo {
+    width: 72px;
+    height: 72px;
+    border-radius: 17px;
+  }
+
   header h1 {
-    font-size: 32px;
+    font-size: clamp(48px, 18vw, 72px);
+    letter-spacing: -2px;
+  }
+
+  .intro {
+    padding: 28px 18px 26px;
+  }
+
+  .intro h2 {
+    font-size: 25px;
+  }
+
+  .intro > p {
+    font-size: 15px;
+  }
+
+  .feature-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
   }
 
   .vote-row {
@@ -432,6 +835,9 @@ footer {
 
 </style>
 
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
 </head>
 
 
@@ -440,13 +846,12 @@ footer {
 
 <header>
 
-<h1 id="logo">
-🔥 RONPA
-</h1>
+<div id="logo" class="hero-brand" role="button" tabindex="0" aria-label="RONPA ホームへ">
+  <img class="hero-logo" src="favicon.png" alt="RONPAロゴ">
+  <h1>RONPA</h1>
+</div>
 
-<p>
-みんなの意見で議論する場所
-</p>
+<button id="adminButton" class="admin-entry" type="button">管理者</button>
 
 </header>
 
@@ -459,23 +864,41 @@ footer {
 </button>
 
 
-<section
-  id="intro"
-  class="intro"
->
+<section id="adminVisitorPanel" class="admin-visitor-panel">
+  <div class="admin-visitor-title">管理者用・訪問ログ</div>
+  <div class="admin-visitor-note">一般ユーザーには表示されません。匿名ID・日時・端末・ブラウザ・閲覧ページのみ記録します。</div>
+  <div id="adminVisitorSummary" class="admin-visitor-summary">読み込み中...</div>
+  <div id="adminVisitorList" class="admin-visitor-list"></div>
+</section>
 
-<h2>
-みんなで議論・討論できる意見交換サイト
-</h2>
 
-<p>
-RONPAでは、気になる議題について
-「賛成」「反対」に投票し、
-自分の意見を投稿できます。
-AI、社会、学校、仕事、生活など、
-さまざまなテーマについて
-他の人の考えを読みながら議論できます。
-</p>
+<section id="intro" class="intro">
+
+<h2>RONPAとは？</h2>
+
+<p>気になるテーマに賛成・反対で投票して、自分の意見を書けるサイト。</p>
+
+<div class="feature-grid">
+  <div class="feature-item">
+    <div class="feature-icon" aria-hidden="true">✓</div>
+    <h3>投票する</h3>
+    <p>賛成・反対で気軽に投票</p>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-icon" aria-hidden="true">💬</div>
+    <h3>意見を書く</h3>
+    <p>自分の考えを自由に投稿</p>
+  </div>
+
+  <div class="feature-item">
+    <div class="feature-icon" aria-hidden="true">◉</div>
+    <h3>議論が深まる</h3>
+    <p>多様な意見に出会える</p>
+  </div>
+</div>
+
+<a class="hero-cta" href="#listControls">今すぐ議題を見てみる　›</a>
 
 </section>
 
@@ -569,7 +992,9 @@ import {
   onSnapshot,
   query,
   orderBy,
-  serverTimestamp
+  limit,
+  serverTimestamp,
+  doc
 
 }
 from
@@ -615,6 +1040,16 @@ const BASE_URL =
 "https://sm-mask.github.io/RONPA/";
 
 
+const ADMIN_PASSWORD =
+"1245";
+
+
+let isAdmin =
+sessionStorage.getItem(
+  "ronpa_admin_mode"
+) === "1";
+
+
 const topicsElement =
 document.getElementById("topics");
 
@@ -650,6 +1085,22 @@ document.getElementById("newButton");
 
 const logo =
 document.getElementById("logo");
+
+const adminButton =
+document.getElementById("adminButton");
+
+
+const adminVisitorPanel =
+document.getElementById("adminVisitorPanel");
+
+const adminVisitorSummary =
+document.getElementById("adminVisitorSummary");
+
+const adminVisitorList =
+document.getElementById("adminVisitorList");
+
+let visitorLogUnsubscribe =
+null;
 
 
 const topicData =
@@ -720,6 +1171,11 @@ function openTopic(
   topicId;
 
 
+  recordTopicView(
+    topicId
+  );
+
+
   const url =
   `${BASE_URL}?topic=${encodeURIComponent(topicId)}`;
 
@@ -761,12 +1217,417 @@ logo.addEventListener(
 openHome
 );
 
+logo.addEventListener(
+"keydown",
+(event) => {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    openHome();
+  }
+}
+);
+
 
 backButton.addEventListener(
 "click",
 openHome
 );
 
+
+function refreshAdminButton() {
+
+  adminButton.textContent =
+  isAdmin ? "管理者モード中" : "管理者";
+
+  adminButton.classList.toggle(
+    "active",
+    isAdmin
+  );
+
+  adminVisitorPanel.classList.toggle(
+    "open",
+    isAdmin
+  );
+
+}
+
+
+adminButton.addEventListener(
+"click",
+() => {
+
+  if (isAdmin) {
+
+    isAdmin = false;
+    sessionStorage.removeItem(
+      "ronpa_admin_mode"
+    );
+    refreshAdminButton();
+    stopVisitorLog();
+    renderTopics();
+    return;
+
+  }
+
+  const entered =
+  prompt("管理者のパスワードを入力してください");
+
+  if (entered === ADMIN_PASSWORD) {
+
+    isAdmin = true;
+    sessionStorage.setItem(
+      "ronpa_admin_mode",
+      "1"
+    );
+    refreshAdminButton();
+    startVisitorLog();
+    renderTopics();
+
+  } else if (entered !== null) {
+
+    alert("パスワードが違います。");
+
+  }
+
+});
+
+
+refreshAdminButton();
+
+// サイトに入った時点で匿名の訪問ログを1件記録。
+recordSiteVisit();
+
+if (isAdmin) {
+  startVisitorLog();
+}
+
+
+// URLから議題を直接開いた場合（再読み込みを含む）も1閲覧として記録。
+if (routeTopicId) {
+  recordTopicView(routeTopicId);
+}
+
+
+
+function getOrCreateVisitorId() {
+
+  let id =
+  localStorage.getItem(
+    "ronpa_visitor_id"
+  );
+
+  if (!id) {
+
+    if (
+      window.crypto &&
+      typeof window.crypto.randomUUID === "function"
+    ) {
+
+      id =
+      window.crypto
+      .randomUUID()
+      .replaceAll("-", "")
+      .slice(0, 10)
+      .toUpperCase();
+
+    } else {
+
+      id =
+      Math.random()
+      .toString(36)
+      .slice(2, 12)
+      .toUpperCase();
+
+    }
+
+    localStorage.setItem(
+      "ronpa_visitor_id",
+      id
+    );
+
+  }
+
+  return id;
+
+}
+
+
+function getDeviceLabel() {
+
+  const ua =
+  navigator.userAgent || "";
+
+  if (/iPad|Tablet/i.test(ua)) {
+    return "タブレット";
+  }
+
+  if (/Mobi|Android|iPhone/i.test(ua)) {
+    return "スマホ";
+  }
+
+  return "PC";
+
+}
+
+
+function getBrowserLabel() {
+
+  const ua =
+  navigator.userAgent || "";
+
+  if (/Edg\//.test(ua)) {
+    return "Edge";
+  }
+
+  if (/Chrome\//.test(ua) && !/Edg\//.test(ua)) {
+    return "Chrome";
+  }
+
+  if (/Safari\//.test(ua) && !/Chrome\//.test(ua)) {
+    return "Safari";
+  }
+
+  if (/Firefox\//.test(ua)) {
+    return "Firefox";
+  }
+
+  return "その他";
+
+}
+
+
+async function recordSiteVisit() {
+
+  try {
+
+    await addDoc(
+      collection(
+        db,
+        "topics",
+        "__site_analytics__",
+        "votes"
+      ),
+      {
+        eventType: "siteVisit",
+        visitorId: getOrCreateVisitorId(),
+        device: getDeviceLabel(),
+        browser: getBrowserLabel(),
+        page: routeTopicId
+          ? `議題: ${routeTopicId}`
+          : "トップページ",
+        createdAt: serverTimestamp()
+      }
+    );
+
+  }
+  catch(error) {
+
+    console.error(
+      "訪問ログの記録に失敗しました",
+      error
+    );
+
+  }
+
+}
+
+
+function formatVisitTime(
+  timestamp
+) {
+
+  if (
+    !timestamp ||
+    typeof timestamp.toDate !== "function"
+  ) {
+    return "記録中...";
+  }
+
+  return timestamp
+  .toDate()
+  .toLocaleString(
+    "ja-JP"
+  );
+
+}
+
+
+function stopVisitorLog() {
+
+  if (visitorLogUnsubscribe) {
+
+    visitorLogUnsubscribe();
+    visitorLogUnsubscribe =
+    null;
+
+  }
+
+  adminVisitorList.innerHTML =
+  "";
+
+  adminVisitorSummary.textContent =
+  "";
+
+}
+
+
+function startVisitorLog() {
+
+  stopVisitorLog();
+
+  if (!isAdmin) {
+    return;
+  }
+
+  adminVisitorSummary.textContent =
+  "読み込み中...";
+
+  const visitQuery =
+  query(
+    collection(
+      db,
+      "topics",
+      "__site_analytics__",
+      "votes"
+    ),
+    orderBy(
+      "createdAt",
+      "desc"
+    ),
+    limit(50)
+  );
+
+  visitorLogUnsubscribe =
+  onSnapshot(
+    visitQuery,
+    snapshot => {
+
+      const visits =
+      [];
+
+      snapshot.forEach(
+        docSnap => {
+
+          const data =
+          docSnap.data();
+
+          if (
+            data.eventType ===
+            "siteVisit"
+          ) {
+
+            visits.push(
+              data
+            );
+
+          }
+
+        }
+      );
+
+      const uniqueVisitors =
+      new Set(
+        visits
+        .map(
+          visit =>
+          visit.visitorId
+        )
+        .filter(Boolean)
+      );
+
+      adminVisitorSummary.textContent =
+      `最新 ${visits.length} 件 / 匿名訪問者 ${uniqueVisitors.size} 人`;
+
+      adminVisitorList.innerHTML =
+      "";
+
+      if (
+        visits.length ===
+        0
+      ) {
+
+        const empty =
+        document.createElement(
+          "div"
+        );
+
+        empty.className =
+        "empty";
+
+        empty.textContent =
+        "まだ訪問記録はありません。";
+
+        adminVisitorList.appendChild(
+          empty
+        );
+
+        return;
+
+      }
+
+      visits.forEach(
+        visit => {
+
+          const item =
+          document.createElement(
+            "div"
+          );
+
+          item.className =
+          "admin-visitor-item";
+
+          const id =
+          document.createElement(
+            "div"
+          );
+
+          id.className =
+          "admin-visitor-id";
+
+          id.textContent =
+          `匿名ID: ${visit.visitorId || "不明"}`;
+
+          const meta =
+          document.createElement(
+            "div"
+          );
+
+          meta.className =
+          "admin-visitor-meta";
+
+          meta.textContent =
+          `${formatVisitTime(visit.createdAt)} / ${visit.device || "不明"} / ${visit.browser || "不明"} / ${visit.page || "不明"}`;
+
+          item.appendChild(
+            id
+          );
+
+          item.appendChild(
+            meta
+          );
+
+          adminVisitorList.appendChild(
+            item
+          );
+
+        }
+      );
+
+    },
+    error => {
+
+      console.error(
+        "訪問ログの読み込みに失敗しました",
+        error
+      );
+
+      adminVisitorSummary.textContent =
+      "訪問ログを読み込めませんでした。";
+
+    }
+  );
+
+}
 
 
 function resetSeo() {
@@ -826,6 +1687,26 @@ function resetSeo() {
   .setAttribute(
     "content",
     BASE_URL
+  );
+
+
+  document
+  .getElementById(
+    "twitterTitle"
+  )
+  .setAttribute(
+    "content",
+    document.title
+  );
+
+
+  document
+  .getElementById(
+    "twitterDescription"
+  )
+  .setAttribute(
+    "content",
+    description
   );
 
 
@@ -921,6 +1802,26 @@ function setTopicSeo(
   .setAttribute(
     "content",
     url
+  );
+
+
+  document
+  .getElementById(
+    "twitterTitle"
+  )
+  .setAttribute(
+    "content",
+    title
+  );
+
+
+  document
+  .getElementById(
+    "twitterDescription"
+  )
+  .setAttribute(
+    "content",
+    description
   );
 
 
@@ -1086,6 +1987,9 @@ async () => {
 
         title,
 
+        views:
+        0,
+
         createdAt:
         serverTimestamp()
 
@@ -1179,6 +2083,15 @@ snapshot => {
           createdAt:
           data.createdAt,
 
+          views:
+          data.views || 0,
+
+          baseViews:
+          data.views || 0,
+
+          viewEvents:
+          0,
+
           agree:
           0,
 
@@ -1218,6 +2131,14 @@ snapshot => {
       topic.createdAt =
       data.createdAt;
 
+
+      topic.baseViews =
+      data.views || 0;
+
+
+      topic.views =
+      topic.baseViews + (topic.viewEvents || 0);
+
     }
 
   });
@@ -1247,6 +2168,40 @@ snapshot => {
 
 });
 
+
+
+async function recordTopicView(
+  topicId
+) {
+
+  try {
+
+    // Firestoreの既存文書を更新せず、動作実績のある votes に閲覧イベントを追加する。
+    await addDoc(
+      collection(
+        db,
+        "topics",
+        topicId,
+        "votes"
+      ),
+      {
+        side: "agree",
+        eventType: "view",
+        createdAt: serverTimestamp()
+      }
+    );
+
+  }
+  catch(error) {
+
+    console.error(
+      "閲覧数の記録に失敗しました",
+      error
+    );
+
+  }
+
+}
 
 
 function watchVotes(
@@ -1290,12 +2245,37 @@ function watchVotes(
       0;
 
 
+      const badCounts =
+      {};
+
+
+      let viewEvents =
+      0;
+
+
       snapshot.forEach(
       voteDoc => {
 
 
         const vote =
         voteDoc.data();
+
+
+        if (vote.eventType === "view") {
+
+          viewEvents++;
+          return;
+
+        }
+
+
+        if (vote.eventType === "bad" && vote.commentId) {
+
+          badCounts[vote.commentId] =
+          (badCounts[vote.commentId] || 0) + 1;
+          return;
+
+        }
 
 
         if (
@@ -1339,6 +2319,18 @@ function watchVotes(
 
       topic.disagree =
       disagree;
+
+
+      topic.badCounts =
+      badCounts;
+
+
+      topic.viewEvents =
+      viewEvents;
+
+
+      topic.views =
+      (topic.baseViews || 0) + viewEvents;
 
 
       renderTopics();
@@ -1403,24 +2395,34 @@ function watchComments(
     snapshot => {
 
 
-      const comments =
+      const allEntries =
       [];
 
 
       snapshot.forEach(
       commentDoc => {
 
-
-        comments.push({
-
-          id:
-          commentDoc.id,
-
+        allEntries.push({
+          id: commentDoc.id,
           ...commentDoc.data()
-
         });
 
       });
+
+
+      const removedIds =
+      new Set(
+        allEntries
+          .filter(entry => entry.eventType === "remove" && entry.targetCommentId)
+          .map(entry => entry.targetCommentId)
+      );
+
+
+      const comments =
+      allEntries.filter(entry =>
+        entry.eventType !== "remove" &&
+        !removedIds.has(entry.id)
+      );
 
 
       const topic =
@@ -1715,7 +2717,9 @@ function renderTopics() {
 
 
     info.textContent =
-    `🔥 人気度 ${score}`;
+    isAdmin
+      ? `🔥 人気度 ${score}　👀 閲覧 ${topic.views || 0}`
+      : `🔥 人気度 ${score}`;
 
 
     const voteRow =
@@ -1902,6 +2906,81 @@ function renderTopics() {
         );
 
 
+        if (routeTopicId) {
+
+          const rating =
+          document.createElement(
+            "div"
+          );
+
+
+          rating.className =
+          "comment-rating";
+
+
+          const badButton =
+          document.createElement(
+            "button"
+          );
+
+
+          badButton.className =
+          "comment-rating-button";
+
+
+          badButton.textContent =
+          `👎 BAD ${(topic.badCounts && topic.badCounts[comment.id]) || 0}`;
+
+
+          badButton.addEventListener(
+            "click",
+            () => rateCommentBad(
+              topic.id,
+              comment.id
+            )
+          );
+
+
+          rating.appendChild(
+            badButton
+          );
+
+
+          box.appendChild(
+            rating
+          );
+
+
+          if (isAdmin) {
+
+            const deleteButton =
+            document.createElement(
+              "button"
+            );
+
+            deleteButton.className =
+            "admin-delete-button";
+
+            deleteButton.textContent =
+            "排除";
+
+            deleteButton.addEventListener(
+              "click",
+              () => deleteCommentAsAdmin(
+                topic.id,
+                comment.id
+              )
+            );
+
+            box.appendChild(
+              deleteButton
+            );
+
+          }
+
+        }
+
+
         latestArea.appendChild(
           box
         );
@@ -1919,6 +2998,200 @@ function renderTopics() {
     card.appendChild(
       info
     );
+
+
+    if (
+      routeTopicId
+    ) {
+
+      const totalVotes =
+      topic.agree +
+      topic.disagree;
+
+
+      const agreePercent =
+      totalVotes > 0
+      ?
+      Math.round(
+        topic.agree /
+        totalVotes *
+        100
+      )
+      :
+      50;
+
+
+      const disagreePercent =
+      totalVotes > 0
+      ?
+      100 - agreePercent
+      :
+      50;
+
+
+      const quickPoll =
+      document.createElement(
+        "div"
+      );
+
+
+      quickPoll.className =
+      "quick-poll";
+
+
+      const quickQuestion =
+      document.createElement(
+        "p"
+      );
+
+
+      quickQuestion.className =
+      "quick-poll-question";
+
+
+      quickQuestion.textContent =
+      "あなたはどっち？";
+
+
+      const quickResult =
+      document.createElement(
+        "div"
+      );
+
+
+      quickResult.className =
+      "quick-poll-result";
+
+
+      const agreeResult =
+      document.createElement(
+        "span"
+      );
+
+
+      agreeResult.textContent =
+      totalVotes > 0
+      ?
+      `👍 賛成 ${agreePercent}%`
+      :
+      "👍 賛成";
+
+
+      const disagreeResult =
+      document.createElement(
+        "span"
+      );
+
+
+      disagreeResult.textContent =
+      totalVotes > 0
+      ?
+      `👎 反対 ${disagreePercent}%`
+      :
+      "👎 反対";
+
+
+      const quickBar =
+      document.createElement(
+        "div"
+      );
+
+
+      quickBar.className =
+      "quick-poll-bar";
+
+
+      const agreeBar =
+      document.createElement(
+        "div"
+      );
+
+
+      agreeBar.className =
+      "quick-poll-agree";
+
+
+      agreeBar.style.width =
+      `${agreePercent}%`;
+
+
+      const disagreeBar =
+      document.createElement(
+        "div"
+      );
+
+
+      disagreeBar.className =
+      "quick-poll-disagree";
+
+
+      disagreeBar.style.width =
+      `${disagreePercent}%`;
+
+
+      const quickNote =
+      document.createElement(
+        "div"
+      );
+
+
+      quickNote.className =
+      "quick-poll-note";
+
+
+      quickNote.textContent =
+      totalVotes > 0
+      ?
+      `${totalVotes}票の投票結果`
+      :
+      "まだ投票はありません";
+
+
+      quickResult.appendChild(
+        agreeResult
+      );
+
+
+      quickResult.appendChild(
+        disagreeResult
+      );
+
+
+      quickBar.appendChild(
+        agreeBar
+      );
+
+
+      quickBar.appendChild(
+        disagreeBar
+      );
+
+
+      quickPoll.appendChild(
+        quickQuestion
+      );
+
+
+      quickPoll.appendChild(
+        quickResult
+      );
+
+
+      quickPoll.appendChild(
+        quickBar
+      );
+
+
+      quickPoll.appendChild(
+        quickNote
+      );
+
+
+      card.appendChild(
+        quickPoll
+      );
+
+    }
 
 
     card.appendChild(
@@ -1971,6 +3244,67 @@ function renderTopics() {
       "share-area";
 
 
+      const shareTitle =
+      document.createElement(
+        "p"
+      );
+
+
+      shareTitle.className =
+      "share-title";
+
+
+      shareTitle.textContent =
+      "この議題をみんなに聞いてみよう";
+
+
+      const topicUrl =
+      `${BASE_URL}?topic=${encodeURIComponent(topic.id)}`;
+
+
+      const shareText =
+      `「${topic.title}」\nあなたは賛成？反対？\n👍 賛成 ${topic.agree} / 👎 反対 ${topic.disagree}\n#RONPA`;
+
+
+      const xShareButton =
+      document.createElement(
+        "button"
+      );
+
+
+      xShareButton.className =
+      "share-button x-share-button";
+
+
+      xShareButton.textContent =
+      "Xでみんなに聞く";
+
+
+      xShareButton.addEventListener(
+        "click",
+        () => {
+
+          const xUrl =
+          "https://twitter.com/intent/tweet?text=" +
+          encodeURIComponent(
+            shareText
+          ) +
+          "&url=" +
+          encodeURIComponent(
+            topicUrl
+          );
+
+
+          window.open(
+            xUrl,
+            "_blank",
+            "noopener,noreferrer"
+          );
+
+        }
+      );
+
+
       const shareButton =
       document.createElement(
         "button"
@@ -1982,7 +3316,7 @@ function renderTopics() {
 
 
       shareButton.textContent =
-      "🔗 この議題のURLをコピー";
+      "🔗 URLをコピー";
 
 
       shareButton.addEventListener(
@@ -1992,23 +3326,44 @@ function renderTopics() {
           try {
 
             await navigator.clipboard.writeText(
-              window.location.href
+              topicUrl
             );
 
 
             shareButton.textContent =
             "✅ コピーしました";
 
+
+            setTimeout(
+              () => {
+
+                shareButton.textContent =
+                "🔗 URLをコピー";
+
+              },
+              1800
+            );
+
           }
           catch(error) {
 
             alert(
-              window.location.href
+              topicUrl
             );
 
           }
 
         }
+      );
+
+
+      shareArea.appendChild(
+        shareTitle
+      );
+
+
+      shareArea.appendChild(
+        xShareButton
       );
 
 
@@ -2021,13 +3376,126 @@ function renderTopics() {
         shareArea
       );
 
+
+      const relatedTopics =
+      Array.from(
+        topicData.values()
+      )
+      .filter(
+        item =>
+        item.id !==
+        topic.id
+      )
+      .sort(
+        (a, b) => {
+
+          const scoreA =
+          a.agree +
+          a.disagree +
+          a.comments.length * 3;
+
+          const scoreB =
+          b.agree +
+          b.disagree +
+          b.comments.length * 3;
+
+          return scoreB - scoreA;
+
+        }
+      )
+      .slice(
+        0,
+        3
+      );
+
+
+      if (
+        relatedTopics.length >
+        0
+      ) {
+
+        const relatedArea =
+        document.createElement(
+          "div"
+        );
+
+
+        relatedArea.className =
+        "related-area";
+
+
+        const relatedTitle =
+        document.createElement(
+          "p"
+        );
+
+
+        relatedTitle.className =
+        "related-title";
+
+
+        relatedTitle.textContent =
+        "こんな議論もあります";
+
+
+        relatedArea.appendChild(
+          relatedTitle
+        );
+
+
+        relatedTopics.forEach(
+        related => {
+
+          const relatedButton =
+          document.createElement(
+            "button"
+          );
+
+
+          relatedButton.className =
+          "related-topic";
+
+
+          relatedButton.textContent =
+          `💬 ${related.title}`;
+
+
+          relatedButton.addEventListener(
+            "click",
+            () => {
+
+              openTopic(
+                related.id
+              );
+
+            }
+          );
+
+
+          relatedArea.appendChild(
+            relatedButton
+          );
+
+        });
+
+
+        card.appendChild(
+          relatedArea
+        );
+
+      }
+
     }
     else {
 
       const hint =
       document.createElement(
-        "div"
+        "button"
       );
+
+
+      hint.type =
+      "button";
 
 
       hint.className =
@@ -2035,7 +3503,7 @@ function renderTopics() {
 
 
       hint.textContent =
-      "▼ 議題を押して詳しく見る";
+      "議題を詳しく見る →";
 
 
       hint.addEventListener(
@@ -2062,6 +3530,243 @@ function renderTopics() {
     );
 
   });
+
+}
+
+
+
+function showSharePrompt(
+  topicId,
+  actionText
+) {
+
+  const oldToast =
+  document.getElementById(
+    "shareToast"
+  );
+
+
+  if (oldToast) {
+    oldToast.remove();
+  }
+
+
+  const topic =
+  topicData.get(
+    topicId
+  );
+
+
+  if (!topic) {
+    return;
+  }
+
+
+  const topicUrl =
+  `${BASE_URL}?topic=${encodeURIComponent(topicId)}`;
+
+
+  const shareText =
+  `「${topic.title}」\nあなたは賛成？反対？\nRONPAで投票してみて👇\n#RONPA`;
+
+
+  const toast =
+  document.createElement(
+    "div"
+  );
+
+
+  toast.id =
+  "shareToast";
+
+
+  toast.className =
+  "share-toast";
+
+
+  const title =
+  document.createElement(
+    "div"
+  );
+
+
+  title.className =
+  "share-toast-title";
+
+
+  title.textContent =
+  `${actionText}！みんなにも聞いてみる？`;
+
+
+  const text =
+  document.createElement(
+    "div"
+  );
+
+
+  text.className =
+  "share-toast-text";
+
+
+  text.textContent =
+  "共有すると、この議題に新しい意見が集まりやすくなります。";
+
+
+  const buttons =
+  document.createElement(
+    "div"
+  );
+
+
+  buttons.className =
+  "share-toast-buttons";
+
+
+  const xButton =
+  document.createElement(
+    "button"
+  );
+
+
+  xButton.className =
+  "share-now";
+
+
+  xButton.textContent =
+  "Xで共有";
+
+
+  xButton.addEventListener(
+    "click",
+    () => {
+
+      const xUrl =
+      "https://twitter.com/intent/tweet?text=" +
+      encodeURIComponent(
+        shareText
+      ) +
+      "&url=" +
+      encodeURIComponent(
+        topicUrl
+      );
+
+
+      window.open(
+        xUrl,
+        "_blank",
+        "noopener,noreferrer"
+      );
+
+    }
+  );
+
+
+  const copyButton =
+  document.createElement(
+    "button"
+  );
+
+
+  copyButton.textContent =
+  "🔗 URLコピー";
+
+
+  copyButton.addEventListener(
+    "click",
+    async () => {
+
+      try {
+
+        await navigator.clipboard.writeText(
+          topicUrl
+        );
+
+
+        copyButton.textContent =
+        "✅ コピー済み";
+
+      }
+      catch(error) {
+
+        alert(
+          topicUrl
+        );
+
+      }
+
+    }
+  );
+
+
+  const closeButton =
+  document.createElement(
+    "button"
+  );
+
+
+  closeButton.className =
+  "share-toast-close";
+
+
+  closeButton.textContent =
+  "今はしない";
+
+
+  closeButton.addEventListener(
+    "click",
+    () => {
+
+      toast.remove();
+
+    }
+  );
+
+
+  buttons.appendChild(
+    xButton
+  );
+
+
+  buttons.appendChild(
+    copyButton
+  );
+
+
+  toast.appendChild(
+    title
+  );
+
+
+  toast.appendChild(
+    text
+  );
+
+
+  toast.appendChild(
+    buttons
+  );
+
+
+  toast.appendChild(
+    closeButton
+  );
+
+
+  document.body.appendChild(
+    toast
+  );
+
+
+  setTimeout(
+    () => {
+
+      if (toast.isConnected) {
+        toast.remove();
+      }
+
+    },
+    12000
+  );
 
 }
 
@@ -2099,6 +3804,7 @@ async function vote(
 
     );
 
+
   }
   catch(error) {
 
@@ -2115,6 +3821,95 @@ async function vote(
 
 }
 
+
+
+async function deleteCommentAsAdmin(
+  topicId,
+  commentId
+) {
+
+  if (!isAdmin) {
+    alert("管理者モードではありません。");
+    return;
+  }
+
+  const ok =
+  confirm("このコメントを排除しますか？\nサイト上から非表示になります。");
+
+  if (!ok) {
+    return;
+  }
+
+  try {
+
+    // delete権限に依存せず、通常コメントと同じ追加権限で非表示マーカーを保存。
+    await addDoc(
+      collection(
+        db,
+        "topics",
+        topicId,
+        "comments"
+      ),
+      {
+        side: "agree",
+        text: "[管理者により非表示]",
+        eventType: "remove",
+        targetCommentId: commentId,
+        createdAt: serverTimestamp()
+      }
+    );
+
+  }
+  catch(error) {
+
+    console.error(error);
+    alert("コメントを排除できませんでした。");
+
+  }
+
+}
+
+
+async function rateCommentBad(
+  topicId,
+  commentId
+) {
+
+  try {
+
+    await addDoc(
+
+      collection(
+        db,
+        "topics",
+        topicId,
+        "votes"
+      ),
+
+      {
+        side: "disagree",
+        eventType: "bad",
+        commentId,
+        createdAt: serverTimestamp()
+      }
+
+    );
+
+  }
+  catch(error) {
+
+    console.error(
+      error
+    );
+
+
+    alert(
+      "BAD評価できませんでした。"
+    );
+
+  }
+
+}
 
 
 function buildDiscussionArea(
@@ -2328,6 +4123,12 @@ function buildDiscussionArea(
             side:
             selectedSide,
 
+            helpful:
+            0,
+
+            notHelpful:
+            0,
+
             createdAt:
             serverTimestamp()
 
@@ -2356,6 +4157,7 @@ function buildDiscussionArea(
 
         message.textContent =
         "投稿しました！";
+
 
       }
       catch(error) {
