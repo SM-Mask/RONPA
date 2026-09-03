@@ -1403,9 +1403,7 @@ async function recordSiteVisit() {
     await addDoc(
       collection(
         db,
-        "topics",
-        "__site_analytics__",
-        "votes"
+        "siteVisits"
       ),
       {
         eventType: "siteVisit",
@@ -1485,9 +1483,7 @@ function startVisitorLog() {
   const visitCollection =
   collection(
     db,
-    "topics",
-    "__site_analytics__",
-    "votes"
+    "siteVisits"
   );
 
   visitorLogUnsubscribe =
